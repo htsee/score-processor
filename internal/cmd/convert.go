@@ -1,23 +1,14 @@
-package main
+package cmd
 
 import (
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
 	"path/filepath"
-
-	"github.com/spf13/cobra"
 )
 
-var rootCmd = &cobra.Command{
-	Use: "sp",
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
-		os.Exit(0)
-	},
-}
-
-var convertCmd = &cobra.Command{
+var ConvertCmd = &cobra.Command{
 	Use:   "convert",
 	Short: "Convert PDF to images",
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -43,13 +34,4 @@ var convertCmd = &cobra.Command{
 		}
 		return nil
 	},
-}
-
-func init() {
-	convertCmd.SilenceErrors = true
-	rootCmd.AddCommand(convertCmd)
-}
-
-func main() {
-	cobra.CheckErr(rootCmd.Execute())
 }
