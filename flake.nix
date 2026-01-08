@@ -20,6 +20,7 @@
           go
           gopls
           opencv
+          mupdf-headless
         ];
       };
     };
