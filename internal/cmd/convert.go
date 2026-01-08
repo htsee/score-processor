@@ -2,33 +2,48 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
-	"path/filepath"
+	"path"
+
+	"github.com/spf13/cobra"
 )
 
 var ConvertCmd = &cobra.Command{
-	Use:   "convert",
+	Use:   "convert [input] [output]",
 	Short: "Convert PDF to images",
+	Args:  cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 1 {
-			cmd.Help()
-			return nil
-		}
-
 		pdf := args[0]
-		isPdf, _ := filepath.Match("*.pdf", pdf)
+		output := args[1]
 
-		if !isPdf {
+		if path.Ext(pdf) != ".pdf" {
 			return fmt.Errorf("File %q is not a PDF", pdf)
 		}
 
 		if _, err := os.Stat(pdf); err != nil {
-			return fmt.Errorf("File %q does not exist", pdf)
+			if os.IsNotExist(err) {
+				return fmt.Errorf("File %q does not exist", pdf)
+			} else {
+				return fmt.Errorf("Cannot access file %q: %w", pdf, err)
+			}
 		}
 
-		convert := exec.Command("mutool", "convert", "-o", "output/img_%03d.png", pdf)
+		info, err := os.Stat(output)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return fmt.Errorf("Folder %q does not exist", output)
+			} else {
+				return fmt.Errorf("Cannot access folder %q: %w", output, err)
+			}
+		}
+
+		if !info.IsDir() {
+			return fmt.Errorf("%q is not a folder", output)
+		}
+
+		output_path := fmt.Sprintf("%s/img_%%03d.png", output)
+		convert := exec.Command("mutool", "convert", "-o", output_path, pdf)
 		if err := convert.Run(); err != nil {
 			return err
 		}
