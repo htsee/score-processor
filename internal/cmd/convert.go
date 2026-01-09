@@ -31,10 +31,12 @@ var ConvertCmd = &cobra.Command{
 
 		info, err := os.Stat(output)
 		if err != nil {
-			if os.IsNotExist(err) {
-				return fmt.Errorf("Folder %q does not exist", output)
-			} else {
+			if !os.IsNotExist(err) {
 				return fmt.Errorf("Cannot access folder %q: %w", output, err)
+			}
+			err = os.Mkdir(output, 0755)
+			if err != nil {
+				return fmt.Errorf("Cannot create folder %q: %w", output, err)
 			}
 		}
 
