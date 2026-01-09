@@ -24,43 +24,50 @@ var ConvertCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-
-		if path.Ext(pdf) != ".pdf" {
-			return fmt.Errorf("File %q is not a PDF", pdf)
-		}
-
-		if _, err := os.Stat(pdf); err != nil {
-			if errors.Is(err, fs.ErrNotExist) {
-				return fmt.Errorf("File %q does not exist", pdf)
-			}
-			return fmt.Errorf("Cannot access file %q: %w", pdf, err)
-		}
-
-		info, err := os.Stat(destination)
+		err = Convert(pdf, destination, pages)
 		if err != nil {
-			if !errors.Is(err, fs.ErrNotExist) {
-				return fmt.Errorf("Cannot access folder %q: %w", destination, err)
-			}
-			err = os.Mkdir(destination, 0755)
-			if err != nil {
-				return fmt.Errorf("Cannot create folder %q: %w", destination, err)
-			}
-		}
-
-		if !info.IsDir() {
-			return fmt.Errorf("%q is not a folder", destination)
-		}
-
-		pdf_name, _ := strings.CutSuffix(pdf, ".pdf")
-
-		output_path := fmt.Sprintf("%s/%s_%%03d.png", destination, pdf_name)
-		convert := exec.Command("mutool", "convert", "-o", output_path, pdf, pages)
-		if err := convert.Run(); err != nil {
-			if errors.Is(err, exec.ErrNotFound) {
-				return errors.New("\"mutool\" not found. Install \"muPDF\" to use this command")
-			}
-			return fmt.Errorf("Failed to convert PDF: %w", err)
+			return err
 		}
 		return nil
 	},
+}
+
+func Convert(pdf, destination, pages string) error {
+	if path.Ext(pdf) != ".pdf" {
+		return fmt.Errorf("File %q is not a PDF", pdf)
+	}
+
+	if _, err := os.Stat(pdf); err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return fmt.Errorf("File %q does not exist", pdf)
+		}
+		return fmt.Errorf("Cannot access file %q: %w", pdf, err)
+	}
+
+	info, err := os.Stat(destination)
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			return fmt.Errorf("Cannot access folder %q: %w", destination, err)
+		}
+		err = os.Mkdir(destination, 0755)
+		if err != nil {
+			return fmt.Errorf("Cannot create folder %q: %w", destination, err)
+		}
+	}
+
+	if !info.IsDir() {
+		return fmt.Errorf("%q is not a folder", destination)
+	}
+
+	pdf_name, _ := strings.CutSuffix(pdf, ".pdf")
+
+	output_path := fmt.Sprintf("%s/%s_%%03d.png", destination, pdf_name)
+	convert := exec.Command("mutool", "convert", "-o", output_path, pdf, pages)
+	if err := convert.Run(); err != nil {
+		if errors.Is(err, exec.ErrNotFound) {
+			return errors.New("\"mutool\" not found. Install \"muPDF\" to use this command")
+		}
+		return fmt.Errorf("Failed to convert PDF: %w", err)
+	}
+	return nil
 }
