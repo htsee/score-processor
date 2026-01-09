@@ -1,4 +1,6 @@
 score-processor
-*.pdf
 *.png
 *.jpg
+
+*.pdf
+!testdata/test.pdf
