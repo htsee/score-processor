@@ -7,17 +7,19 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 var ConvertCmd = &cobra.Command{
-	Use:   "convert [input] [output]",
+	Use:   "convert [input] [destination]",
 	Short: "Convert PDF to images",
+	Long:  "Convert PDF to images (PNG). Automatically create destination folder if it does not exist. Require \"muPDF\".",
 	Args:  cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pdf := args[0]
-		output := args[1]
+		destination := args[1]
 		pages, err := cmd.Flags().GetString("pages")
 		if err != nil {
 			return err
@@ -34,22 +36,24 @@ var ConvertCmd = &cobra.Command{
 			return fmt.Errorf("Cannot access file %q: %w", pdf, err)
 		}
 
-		info, err := os.Stat(output)
+		info, err := os.Stat(destination)
 		if err != nil {
 			if !errors.Is(err, fs.ErrNotExist) {
-				return fmt.Errorf("Cannot access folder %q: %w", output, err)
+				return fmt.Errorf("Cannot access folder %q: %w", destination, err)
 			}
-			err = os.Mkdir(output, 0755)
+			err = os.Mkdir(destination, 0755)
 			if err != nil {
-				return fmt.Errorf("Cannot create folder %q: %w", output, err)
+				return fmt.Errorf("Cannot create folder %q: %w", destination, err)
 			}
 		}
 
 		if !info.IsDir() {
-			return fmt.Errorf("%q is not a folder", output)
+			return fmt.Errorf("%q is not a folder", destination)
 		}
 
-		output_path := fmt.Sprintf("%s/img_%%03d.png", output)
+		pdf_name, _ := strings.CutSuffix(pdf, ".pdf")
+
+		output_path := fmt.Sprintf("%s/%s_%%03d.png", destination, pdf_name)
 		convert := exec.Command("mutool", "convert", "-o", output_path, pdf, pages)
 		if err := convert.Run(); err != nil {
 			if errors.Is(err, exec.ErrNotFound) {
