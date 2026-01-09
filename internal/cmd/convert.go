@@ -18,6 +18,10 @@ var ConvertCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pdf := args[0]
 		output := args[1]
+		pages, err := cmd.Flags().GetString("pages")
+		if err != nil {
+			return err
+		}
 
 		if path.Ext(pdf) != ".pdf" {
 			return fmt.Errorf("File %q is not a PDF", pdf)
@@ -46,7 +50,7 @@ var ConvertCmd = &cobra.Command{
 		}
 
 		output_path := fmt.Sprintf("%s/img_%%03d.png", output)
-		convert := exec.Command("mutool", "convert", "-o", output_path, pdf)
+		convert := exec.Command("mutool", "convert", "-o", output_path, pdf, pages)
 		if err := convert.Run(); err != nil {
 			if errors.Is(err, exec.ErrNotFound) {
 				return errors.New("\"mutool\" not found. Install \"muPDF\" to use this command")
