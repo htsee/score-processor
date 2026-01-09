@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path"
@@ -22,16 +24,15 @@ var ConvertCmd = &cobra.Command{
 		}
 
 		if _, err := os.Stat(pdf); err != nil {
-			if os.IsNotExist(err) {
+			if errors.Is(err, fs.ErrNotExist) {
 				return fmt.Errorf("File %q does not exist", pdf)
-			} else {
-				return fmt.Errorf("Cannot access file %q: %w", pdf, err)
 			}
+			return fmt.Errorf("Cannot access file %q: %w", pdf, err)
 		}
 
 		info, err := os.Stat(output)
 		if err != nil {
-			if !os.IsNotExist(err) {
+			if !errors.Is(err, fs.ErrNotExist) {
 				return fmt.Errorf("Cannot access folder %q: %w", output, err)
 			}
 			err = os.Mkdir(output, 0755)
@@ -47,7 +48,10 @@ var ConvertCmd = &cobra.Command{
 		output_path := fmt.Sprintf("%s/img_%%03d.png", output)
 		convert := exec.Command("mutool", "convert", "-o", output_path, pdf)
 		if err := convert.Run(); err != nil {
-			return err
+			if errors.Is(err, exec.ErrNotFound) {
+				return errors.New("\"mutool\" not found. Install \"muPDF\" to use this command")
+			}
+			return fmt.Errorf("Failed to convert PDF: %w", err)
 		}
 		return nil
 	},
