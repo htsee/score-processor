@@ -59,7 +59,7 @@ func Convert(pdf, destination, pages string) error {
 		return fmt.Errorf("%q is not a folder", destination)
 	}
 
-	pdf_name, _ := strings.CutSuffix(pdf, ".pdf")
+	pdf_name, _ := strings.CutSuffix(path.Base(pdf), ".pdf")
 
 	output_path := fmt.Sprintf("%s/%s_%%03d.png", destination, pdf_name)
 	convert := exec.Command("mutool", "convert", "-o", output_path, pdf, pages)

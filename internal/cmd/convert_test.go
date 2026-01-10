@@ -1,0 +1,40 @@
+package cmd_test
+
+import (
+	// "errors"
+	"testing"
+
+	"github.com/htsee/score-processor/internal/cmd"
+	// "github.com/htsee/score-processor/internal/util"
+)
+
+func TestConvert(t *testing.T) {
+	tests := []struct {
+		name        string
+		input       string
+		destination string
+		want        string
+	}{
+		{"correct input", "../../testdata/test.pdf", "output", ""},
+		{"Input not a PDF", "../../testdata/test.png", "output", "File \"../../testdata/test.png\" is not a PDF"},
+		{"Destination not a folder", "../../testdata/test.pdf", "../../flake.lock", "\"../../flake.lock\" is not a folder"},
+		{"Input does not exist", "notExist.pdf", "output", "File \"notExist.pdf\" does not exist"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := cmd.Convert(tt.input, tt.destination, "1-N")
+			if err == nil {
+				if tt.want != "" {
+					t.Errorf("got nil, want %v", tt.want)
+				}
+				return
+			}
+			if err.Error() != tt.want {
+				t.Errorf("got %v, want %v", err, tt.want)
+			}
+		})
+	}
+}
+
+// func BenchmarkConvert(b *testing.B) {}
