@@ -1,11 +1,8 @@
 package cmd_test
 
 import (
-	// "errors"
-	"testing"
-
 	"github.com/htsee/score-processor/internal/cmd"
-	// "github.com/htsee/score-processor/internal/util"
+	"testing"
 )
 
 func TestConvert(t *testing.T) {
