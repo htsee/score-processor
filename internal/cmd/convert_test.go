@@ -37,4 +37,8 @@ func TestConvert(t *testing.T) {
 	}
 }
 
-// func BenchmarkConvert(b *testing.B) {}
+func BenchmarkConvert(b *testing.B) {
+	for b.Loop() {
+		cmd.Convert("../../testdata/test.pdf", "output", "1-N")
+	}
+}
