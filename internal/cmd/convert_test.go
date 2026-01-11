@@ -12,10 +12,10 @@ func TestConvert(t *testing.T) {
 		destination string
 		want        string
 	}{
-		{"correct input", "../../testdata/test.pdf", "output", ""},
-		{"Input not a PDF", "../../testdata/test.png", "output", "File \"../../testdata/test.png\" is not a PDF"},
+		{"correct input", "../../testdata/test.pdf", t.TempDir(), ""},
+		{"Input not a PDF", "../../testdata/test.png", t.TempDir(), "File \"../../testdata/test.png\" is not a PDF"},
 		{"Destination not a folder", "../../testdata/test.pdf", "../../flake.lock", "\"../../flake.lock\" is not a folder"},
-		{"Input does not exist", "notExist.pdf", "output", "File \"notExist.pdf\" does not exist"},
+		{"Input does not exist", "notExist.pdf", t.TempDir(), "File \"notExist.pdf\" does not exist"},
 	}
 
 	for _, tt := range tests {
@@ -36,6 +36,6 @@ func TestConvert(t *testing.T) {
 
 func BenchmarkConvert(b *testing.B) {
 	for b.Loop() {
-		cmd.Convert("../../testdata/test.pdf", "output", "1-N")
+		cmd.Convert("../../testdata/test.pdf", b.TempDir(), "1-N")
 	}
 }
