@@ -15,4 +15,5 @@ func init() {
 	ConvertCmd.Flags().StringP("pages", "p", "1-N", "Comma separated list of page ranges. \"N\" is the last page.")
 	ConvertCmd.SilenceErrors = true
 	RootCmd.AddCommand(ConvertCmd)
+	RootCmd.AddCommand(CutCmd)
 }
