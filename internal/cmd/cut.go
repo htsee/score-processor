@@ -13,14 +13,16 @@ import (
 )
 
 var CutCmd = &cobra.Command{
-	Use:   "cut [input] [destination]",
+	Use:   "cut [inputs] [destination]",
 	Short: "Cut the score into staves",
-	Args:  cobra.ExactArgs(2),
+	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		input := args[0]
-		destination := args[1]
-		if err := Cut(input, destination); err != nil {
-			return err
+		inputs := args[0 : len(args)-1]
+		destination := args[len(args)-1]
+		for _, input := range inputs {
+			if err := Cut(input, destination); err != nil {
+				return err
+			}
 		}
 		return nil
 	},
