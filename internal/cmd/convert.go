@@ -13,19 +13,21 @@ import (
 )
 
 var ConvertCmd = &cobra.Command{
-	Use:   "convert [input] [destination]",
+	Use:   "convert [inputs] [destination]",
 	Short: "Convert PDF to images",
 	Long:  "Convert PDF to images (PNG). Automatically create destination folder if it does not exist. Require \"muPDF\".",
-	Args:  cobra.ExactArgs(2),
+	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		pdf := args[0]
-		destination := args[1]
+		inputs := args[0 : len(args)-1]
+		destination := args[len(args)-1]
 		pages, err := cmd.Flags().GetString("pages")
 		if err != nil {
 			return err
 		}
-		if err = Convert(pdf, destination, pages); err != nil {
-			return err
+		for _, input := range inputs {
+			if err = Convert(input, destination, pages); err != nil {
+				return err
+			}
 		}
 		return nil
 	},

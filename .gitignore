@@ -3,4 +3,4 @@ score-processor
 *.jpg
 
 *.pdf
-!testdata/test.pdf
+!testdata/*
