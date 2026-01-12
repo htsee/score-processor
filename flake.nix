@@ -21,6 +21,7 @@
           gopls
           opencv
           mupdf-headless
+          pkg-config
         ];
       };
     };
