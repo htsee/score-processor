@@ -44,13 +44,14 @@ func Cut(input string, destination string) error {
 		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
 	}
 
-	pdf_name, _, _ := strings.Cut(path.Base(input), ".")
-	output_path := fmt.Sprintf("%s/%s_001.png", destination, pdf_name)
-
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
 	if img.Empty() {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
+
+	img_name, _, _ := strings.Cut(path.Base(input), ".")
+	output_path := fmt.Sprintf("%s/%s_001.png", destination, img_name)
+
 	gocv.IMWrite(output_path, img)
 	return nil
 
