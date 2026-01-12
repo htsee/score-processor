@@ -24,8 +24,7 @@ var ConvertCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		err = Convert(pdf, destination, pages)
-		if err != nil {
+		if err = Convert(pdf, destination, pages); err != nil {
 			return err
 		}
 		return nil
@@ -49,8 +48,8 @@ func Convert(pdf, destination, pages string) error {
 	}
 
 	pdf_name, _ := strings.CutSuffix(path.Base(pdf), ".pdf")
-
 	output_path := fmt.Sprintf("%s/%s_%%03d.png", destination, pdf_name)
+
 	convert := exec.Command("mutool", "convert", "-o", output_path, pdf, pages)
 	if err := convert.Run(); err != nil {
 		if errors.Is(err, exec.ErrNotFound) {
