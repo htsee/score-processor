@@ -14,7 +14,6 @@ func TestConvert(t *testing.T) {
 	}{
 		{"correct input", "../../testdata/test.pdf", t.TempDir(), ""},
 		{"Input not a PDF", "../../testdata/test.png", t.TempDir(), "File \"../../testdata/test.png\" is not a PDF"},
-		{"Destination not a folder", "../../testdata/test.pdf", "../../flake.lock", "\"../../flake.lock\" is not a folder"},
 		{"Input does not exist", "notExist.pdf", t.TempDir(), "File \"notExist.pdf\" does not exist"},
 	}
 

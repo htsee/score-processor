@@ -44,19 +44,8 @@ func Convert(pdf, destination, pages string) error {
 		return fmt.Errorf("Cannot access file %q: %w", pdf, err)
 	}
 
-	info, err := os.Stat(destination)
-	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) {
-			return fmt.Errorf("Cannot access folder %q: %w", destination, err)
-		}
-		err = os.Mkdir(destination, 0755)
-		if err != nil {
-			return fmt.Errorf("Cannot create folder %q: %w", destination, err)
-		}
-	}
-
-	if !info.IsDir() {
-		return fmt.Errorf("%q is not a folder", destination)
+	if err := os.MkdirAll(destination, 0755); err != nil {
+		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
 	}
 
 	pdf_name, _ := strings.CutSuffix(path.Base(pdf), ".pdf")
