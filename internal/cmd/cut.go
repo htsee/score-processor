@@ -45,6 +45,8 @@ func Cut(input string, destination string) error {
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
+	defer img.Close()
+
 	if img.Empty() {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
