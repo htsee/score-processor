@@ -16,4 +16,5 @@ func init() {
 	ConvertCmd.SilenceErrors = true
 	RootCmd.AddCommand(ConvertCmd)
 	RootCmd.AddCommand(CutCmd)
+	RootCmd.AddCommand(RotateCmd)
 }
