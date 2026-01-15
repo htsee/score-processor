@@ -10,7 +10,7 @@ import (
 
 func CheckFileType(file, filetype string) error {
 	if path.Ext(file) != "."+filetype {
-		return fmt.Errorf("%q is not a %v", file, filetype)
+		return fmt.Errorf("File %q is not a %v", file, filetype)
 	}
 
 	if _, err := os.Stat(file); err != nil {
