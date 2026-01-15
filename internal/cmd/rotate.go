@@ -14,7 +14,7 @@ import (
 
 var RotateCmd = &cobra.Command{
 	Use:   "rotate [inputs] [angle]",
-	Short: "Rotate the image clockwise",
+	Short: "Rotate images clockwise",
 	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]
