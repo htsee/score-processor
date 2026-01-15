@@ -20,7 +20,7 @@ var RotateCmd = &cobra.Command{
 		inputs := args[0 : len(args)-1]
 		angle := args[len(args)-1]
 		for _, input := range inputs {
-			if err := RotateCmdExecute(input, angle); err != nil {
+			if err := rotateCmdExecute(input, angle); err != nil {
 				return err
 			}
 		}
@@ -28,7 +28,7 @@ var RotateCmd = &cobra.Command{
 	},
 }
 
-func RotateCmdExecute(input, angle string) error {
+func rotateCmdExecute(input, angle string) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func RotateCmdExecute(input, angle string) error {
 		return fmt.Errorf("Angle not valid: %w", err)
 	}
 
-	rotated := RotateImg(img, angleFloat)
+	rotated := Rotate(img, angleFloat)
 	defer rotated.Close()
 
 	gocv.IMWrite(input, rotated)
@@ -54,7 +54,7 @@ func RotateCmdExecute(input, angle string) error {
 	return nil
 }
 
-func RotateImg(img gocv.Mat, angle float64) gocv.Mat {
+func Rotate(img gocv.Mat, angle float64) gocv.Mat {
 	rotated := gocv.NewMat()
 
 	imgW, imgH := img.Cols(), img.Rows()
