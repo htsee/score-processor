@@ -17,4 +17,5 @@ func init() {
 	RootCmd.AddCommand(ConvertCmd)
 	RootCmd.AddCommand(CutCmd)
 	RootCmd.AddCommand(RotateCmd)
+	RootCmd.AddCommand(DeskewCmd)
 }
