@@ -71,7 +71,7 @@ func RotateImg(img gocv.Mat, angle float64) gocv.Mat {
 
 	centre := image.Point{imgW / 2, imgH / 2}
 
-	rotationMatrix := gocv.GetRotationMatrix2D(centre, angle, 1.0)
+	rotationMatrix := gocv.GetRotationMatrix2D(centre, -angle, 1.0)
 	defer rotationMatrix.Close()
 
 	absCos := math.Abs(rotationMatrix.GetDoubleAt(0, 0))
