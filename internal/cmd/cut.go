@@ -13,7 +13,7 @@ import (
 
 var CutCmd = &cobra.Command{
 	Use:   "cut [inputs] [destination]",
-	Short: "Cut images of music score into staves",
+	Short: "Cut images into staves",
 	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]
