@@ -3,12 +3,12 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"io/fs"
 	"os"
 	"os/exec"
 	"path"
 	"strings"
 
+	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
 )
 
@@ -34,15 +34,8 @@ var ConvertCmd = &cobra.Command{
 }
 
 func Convert(pdf, destination, pages string) error {
-	if path.Ext(pdf) != ".pdf" {
-		return fmt.Errorf("File %q is not a PDF", pdf)
-	}
-
-	if _, err := os.Stat(pdf); err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return fmt.Errorf("File %q does not exist", pdf)
-		}
-		return fmt.Errorf("Cannot access file %q: %w", pdf, err)
+	if err := util.CheckFileType(pdf, "pdf"); err != nil {
+		return err
 	}
 
 	if err := os.MkdirAll(destination, 0755); err != nil {

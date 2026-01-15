@@ -1,16 +1,13 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"image"
 	"image/color"
-	"io/fs"
 	"math"
-	"os"
-	"path"
 	"strconv"
 
+	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
 	"gocv.io/x/gocv"
 )
@@ -32,15 +29,8 @@ var RotateCmd = &cobra.Command{
 }
 
 func RotateCmdExecute(input, angle string) error {
-	if path.Ext(input) != ".png" && path.Ext(input) != ".jpg" {
-		return fmt.Errorf("File %q is not an image", input)
-	}
-
-	if _, err := os.Stat(input); err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return fmt.Errorf("File %q does not exist", input)
-		}
-		return fmt.Errorf("Cannot access file %q: %w", input, err)
+	if err := util.CheckFileType(input, "png"); err != nil {
+		return err
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
