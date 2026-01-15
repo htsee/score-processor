@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
@@ -43,5 +44,22 @@ func deskewCmdExecute(input string) error {
 }
 
 func Deskew(img gocv.Mat) gocv.Mat {
-	return img
+	edges := gocv.NewMat()
+	defer edges.Close()
+	gocv.Canny(img, &edges, 50, 200)
+
+	lines := gocv.NewMat()
+	defer lines.Close()
+	gocv.HoughLinesPWithParams(edges, &lines, 1, math.Pi/360, 100, float32(img.Cols())/4.0, 5)
+
+	var angles []float64
+	for i := 0; i < lines.Rows(); i++ {
+		line := lines.GetVeciAt(i, 0)
+		angle := math.Atan2(float64(line[3]-line[1]), float64(line[2]-line[0])) * (180.0 / math.Pi)
+		angles = append(angles, angle)
+	}
+
+	medianAngle := angles[len(angles)/2]
+
+	return Rotate(img, medianAngle)
 }
