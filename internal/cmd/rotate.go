@@ -49,7 +49,9 @@ func rotateCmdExecute(input, angle string) error {
 	rotated := Rotate(img, -angleFloat)
 	defer rotated.Close()
 
-	gocv.IMWrite(input, rotated)
+	padded := Padding(rotated)
+
+	gocv.IMWrite(input, padded)
 
 	return nil
 }
@@ -72,7 +74,7 @@ func Rotate(img gocv.Mat, angle float64) gocv.Mat {
 	rotationMatrix.SetDoubleAt(0, 2, rotationMatrix.GetDoubleAt(0, 2)+float64(newW-imgW)/2.0)
 	rotationMatrix.SetDoubleAt(1, 2, rotationMatrix.GetDoubleAt(1, 2)+float64(newH-imgH)/2.0)
 
-	gocv.WarpAffineWithParams(img, &rotated, rotationMatrix, image.Point{newW, newH}, gocv.InterpolationLinear, gocv.BorderConstant, color.RGBA{255, 255, 255, 0})
+	gocv.WarpAffineWithParams(img, &rotated, rotationMatrix, image.Point{newW, newH}, gocv.InterpolationLinear, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
 
 	return rotated
 }
