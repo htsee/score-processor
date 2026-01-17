@@ -35,7 +35,10 @@ func deskewCmdExecute(input string) error {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
 
-	deskewed := Deskew(img)
+	deskewed, err := Deskew(img)
+	if err != nil {
+		return fmt.Errorf("Cannot deskew image: %w", err)
+	}
 	defer deskewed.Close()
 
 	gocv.IMWrite(input, deskewed)
@@ -43,14 +46,18 @@ func deskewCmdExecute(input string) error {
 	return nil
 }
 
-func Deskew(img gocv.Mat) gocv.Mat {
+func Deskew(img gocv.Mat) (gocv.Mat, error) {
 	edges := gocv.NewMat()
 	defer edges.Close()
-	gocv.Canny(img, &edges, 50, 200)
+	if err := gocv.Canny(img, &edges, 50, 200); err != nil {
+		return img, err
+	}
 
 	lines := gocv.NewMat()
 	defer lines.Close()
-	gocv.HoughLinesPWithParams(edges, &lines, 1, math.Pi/360, 100, float32(img.Cols())/4.0, 5)
+	if err := gocv.HoughLinesPWithParams(edges, &lines, 1, math.Pi/360, 100, float32(img.Cols())/4.0, 5); err != nil {
+		return img, err
+	}
 
 	var angles []float64
 	for i := 0; i < lines.Rows(); i++ {
@@ -61,5 +68,10 @@ func Deskew(img gocv.Mat) gocv.Mat {
 
 	medianAngle := angles[len(angles)/2]
 
-	return Rotate(img, medianAngle)
+	rotated, err := Rotate(img, medianAngle)
+	if err != nil {
+		return img, err
+	}
+
+	return rotated, nil
 }

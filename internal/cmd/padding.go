@@ -36,7 +36,10 @@ func paddingCmdExecute(input string) error {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
 
-	padded := Padding(img)
+	padded, err := Padding(img)
+	if err != nil {
+		return fmt.Errorf("Cannot pad image: %w", err)
+	}
 	defer padded.Close()
 
 	gocv.IMWrite(input, padded)
@@ -44,27 +47,38 @@ func paddingCmdExecute(input string) error {
 	return nil
 }
 
-func Padding(img gocv.Mat) gocv.Mat {
+func Padding(img gocv.Mat) (gocv.Mat, error) {
 	padded := gocv.NewMat()
 	paddingSize := img.Cols() / 50
 
-	cropped := img.Region(getBoundingBox(img))
+	boundingBox, err := getBoundingBox(img)
+	if err != nil {
+		return img, err
+	}
+
+	cropped := img.Region(boundingBox)
 	defer cropped.Close()
-	gocv.CopyMakeBorder(cropped, &padded, paddingSize, paddingSize, paddingSize, paddingSize, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
-	return padded
+
+	err = gocv.CopyMakeBorder(cropped, &padded, paddingSize, paddingSize, paddingSize, paddingSize, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+	if err != nil {
+		return img, err
+	}
+	return padded, nil
 }
 
-func getBoundingBox(img gocv.Mat) image.Rectangle {
+func getBoundingBox(img gocv.Mat) (image.Rectangle, error) {
 	thresh := gocv.NewMat()
 	defer thresh.Close()
 	gocv.Threshold(img, &thresh, 50, 255, gocv.ThresholdBinaryInv)
 
 	nonZero := gocv.NewMat()
 	defer nonZero.Close()
-	gocv.FindNonZero(thresh, &nonZero)
+	if err := gocv.FindNonZero(thresh, &nonZero); err != nil {
+		return image.Rectangle{}, err
+	}
 
 	pointVector := gocv.NewPointVectorFromMat(nonZero)
 	defer pointVector.Close()
 
-	return gocv.BoundingRect(pointVector)
+	return gocv.BoundingRect(pointVector), nil
 }
