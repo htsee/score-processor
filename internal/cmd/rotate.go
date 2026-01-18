@@ -52,12 +52,7 @@ func rotateCmdExecute(input, angle string) error {
 	}
 	defer rotated.Close()
 
-	padded, err := Padding(rotated)
-	if err != nil {
-		return fmt.Errorf("Cannot pad image: %w", err)
-	}
-
-	gocv.IMWrite(input, padded)
+	gocv.IMWrite(input, rotated)
 
 	return nil
 }
