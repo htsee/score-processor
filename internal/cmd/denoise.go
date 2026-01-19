@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"image"
+	"math"
 
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
@@ -53,7 +54,7 @@ func Denoise(img gocv.Mat) (gocv.Mat, error) {
 
 	gocv.Threshold(img, &thresh, 225, 255, gocv.ThresholdBinaryInv)
 
-	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{5, 5})
+	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{11, 11})
 
 	closed := gocv.NewMat()
 
@@ -71,7 +72,7 @@ func Denoise(img gocv.Mat) (gocv.Mat, error) {
 	closed.Close()
 	centroids.Close()
 
-	maxSizeForNoise := img.Cols() / 500
+	maxSizeForNoise := math.Pow(float64(img.Cols()/200), 2)
 
 	mergedMask := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8U)
 	mergedMask.SetTo(gocv.Scalar{Val1: 255})

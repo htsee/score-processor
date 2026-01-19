@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"image"
 	"math"
 	"os"
 	"path"
@@ -65,14 +66,25 @@ func Cut(input string, destination string) error {
 
 	gocv.Threshold(deskewed, &thresh, 220, 255, gocv.ThresholdBinaryInv)
 
+	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{3, 3})
+
+	closed := gocv.NewMat()
+
+	if err := gocv.MorphologyEx(thresh, &closed, gocv.MorphClose, kernel); err != nil {
+		return err
+	}
+
+	kernel.Close()
+	thresh.Close()
+
 	labels := gocv.NewMat()
 	stats := gocv.NewMat()
 	centroids := gocv.NewMat()
-	numLabels := gocv.ConnectedComponentsWithStats(thresh, &labels, &stats, &centroids)
-	thresh.Close()
+	numLabels := gocv.ConnectedComponentsWithStats(closed, &labels, &stats, &centroids)
+	closed.Close()
 	centroids.Close()
 
-	minSizeForStaff := (deskewed.Cols() / 2) * 5
+	minSizeForStaff := deskewed.Cols() * 5
 
 	var staves []staff
 
