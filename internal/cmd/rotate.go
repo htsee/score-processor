@@ -34,7 +34,6 @@ func rotateCmdExecute(input, angle string) error {
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
-	defer img.Close()
 
 	if img.Empty() {
 		return fmt.Errorf("Cannot read image %q", input)
@@ -50,9 +49,10 @@ func rotateCmdExecute(input, angle string) error {
 	if err != nil {
 		return fmt.Errorf("Cannot rotate image: %w", err)
 	}
-	defer rotated.Close()
+	img.Close()
 
 	gocv.IMWrite(input, rotated)
+	rotated.Close()
 
 	return nil
 }
@@ -65,7 +65,6 @@ func Rotate(img gocv.Mat, angle float64) (gocv.Mat, error) {
 	centre := image.Point{imgW / 2, imgH / 2}
 
 	rotationMatrix := gocv.GetRotationMatrix2D(centre, angle, 1.0)
-	defer rotationMatrix.Close()
 
 	absCos := math.Abs(rotationMatrix.GetDoubleAt(0, 0))
 	absSin := math.Abs(rotationMatrix.GetDoubleAt(0, 1))
@@ -79,6 +78,7 @@ func Rotate(img gocv.Mat, angle float64) (gocv.Mat, error) {
 	if err != nil {
 		return img, err
 	}
+	rotationMatrix.Close()
 
 	return rotated, nil
 }

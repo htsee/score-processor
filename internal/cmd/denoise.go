@@ -29,7 +29,6 @@ func denoiseCmdExecute(input string) error {
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
-	defer img.Close()
 
 	if img.Empty() {
 		return fmt.Errorf("Cannot read image %q", input)
@@ -39,9 +38,10 @@ func denoiseCmdExecute(input string) error {
 	if err != nil {
 		return fmt.Errorf("Failed to denoise image: %w", err)
 	}
-	defer denoised.Close()
+	img.Close()
 
 	gocv.IMWrite(input, denoised)
+	denoised.Close()
 
 	return nil
 }
@@ -50,33 +50,31 @@ func Denoise(img gocv.Mat) (gocv.Mat, error) {
 	denoised := gocv.NewMat()
 
 	thresh := gocv.NewMat()
-	defer thresh.Close()
 
 	gocv.Threshold(img, &thresh, 225, 255, gocv.ThresholdBinaryInv)
 
 	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{5, 5})
-	defer kernel.Close()
 
 	closed := gocv.NewMat()
-	defer closed.Close()
 
 	if err := gocv.MorphologyEx(thresh, &closed, gocv.MorphClose, kernel); err != nil {
 		return img, err
 	}
 
+	thresh.Close()
+	kernel.Close()
+
 	labels := gocv.NewMat()
-	defer labels.Close()
 	stats := gocv.NewMat()
-	defer stats.Close()
 	centroids := gocv.NewMat()
-	defer centroids.Close()
 	numLabels := gocv.ConnectedComponentsWithStats(closed, &labels, &stats, &centroids)
+	closed.Close()
+	centroids.Close()
 
 	maxSizeForNoise := img.Cols() / 500
 
 	mergedMask := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8U)
 	mergedMask.SetTo(gocv.Scalar{Val1: 255})
-	defer mergedMask.Close()
 
 	for i := 1; i < numLabels; i++ {
 		area := stats.GetIntAt(i, 4)
@@ -97,26 +95,30 @@ func Denoise(img gocv.Mat) (gocv.Mat, error) {
 			if err := gocv.BitwiseXor(mergedMask, mask, &mergedMask); err != nil {
 				return img, err
 			}
+			mask.Close()
 		}
 	}
+	labels.Close()
+	stats.Close()
 
 	inverted := gocv.NewMat()
-	defer inverted.Close()
 
 	if err := gocv.BitwiseNot(img, &inverted); err != nil {
 		return img, err
 	}
 
 	invertedDenoised := gocv.NewMat()
-	defer invertedDenoised.Close()
 
 	if err := inverted.CopyToWithMask(&invertedDenoised, mergedMask); err != nil {
 		return img, err
 	}
+	inverted.Close()
+	mergedMask.Close()
 
 	if err := gocv.BitwiseNot(invertedDenoised, &denoised); err != nil {
 		return img, err
 	}
+	invertedDenoised.Close()
 
 	return denoised, nil
 }

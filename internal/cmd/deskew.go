@@ -29,7 +29,6 @@ func deskewCmdExecute(input string) error {
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
-	defer img.Close()
 
 	if img.Empty() {
 		return fmt.Errorf("Cannot read image %q", input)
@@ -39,25 +38,26 @@ func deskewCmdExecute(input string) error {
 	if err != nil {
 		return fmt.Errorf("Cannot deskew image: %w", err)
 	}
-	defer deskewed.Close()
+	img.Close()
 
 	gocv.IMWrite(input, deskewed)
+	deskewed.Close()
 
 	return nil
 }
 
 func Deskew(img gocv.Mat) (gocv.Mat, error) {
 	edges := gocv.NewMat()
-	defer edges.Close()
 	if err := gocv.Canny(img, &edges, 50, 200); err != nil {
 		return img, err
 	}
 
 	lines := gocv.NewMat()
-	defer lines.Close()
+
 	if err := gocv.HoughLinesPWithParams(edges, &lines, 1, math.Pi/360, 100, float32(img.Cols())/4.0, 5); err != nil {
 		return img, err
 	}
+	edges.Close()
 
 	var angles []float64
 	for i := 0; i < lines.Rows(); i++ {
@@ -65,6 +65,7 @@ func Deskew(img gocv.Mat) (gocv.Mat, error) {
 		angle := math.Atan2(float64(line[3]-line[1]), float64(line[2]-line[0])) * (180.0 / math.Pi)
 		angles = append(angles, angle)
 	}
+	lines.Close()
 
 	medianAngle := angles[len(angles)/2]
 
