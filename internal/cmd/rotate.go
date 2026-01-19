@@ -47,7 +47,7 @@ func rotateCmdExecute(input, angle string) error {
 
 	rotated, err := Rotate(img, -angleFloat)
 	if err != nil {
-		return fmt.Errorf("Cannot rotate image: %w", err)
+		return fmt.Errorf("Failed to rotate image: %w", err)
 	}
 	img.Close()
 

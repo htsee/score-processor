@@ -36,7 +36,7 @@ func deskewCmdExecute(input string) error {
 
 	deskewed, err := Deskew(img)
 	if err != nil {
-		return fmt.Errorf("Cannot deskew image: %w", err)
+		return fmt.Errorf("Failed to deskew image: %w", err)
 	}
 	img.Close()
 

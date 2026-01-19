@@ -37,7 +37,7 @@ func paddingCmdExecute(input string) error {
 
 	padded, err := Padding(img)
 	if err != nil {
-		return fmt.Errorf("Cannot pad image: %w", err)
+		return fmt.Errorf("Failed to pad image: %w", err)
 	}
 	img.Close()
 
