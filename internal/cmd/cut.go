@@ -50,21 +50,9 @@ func Cut(input string, destination string) error {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
 
-	denoised, err := Denoise(img)
-	if err != nil {
-		return nil
-	}
-	img.Close()
-
-	deskewed, err := Deskew(denoised)
-	if err != nil {
-		return err
-	}
-	denoised.Close()
-
 	thresh := gocv.NewMat()
 
-	gocv.Threshold(deskewed, &thresh, 220, 255, gocv.ThresholdBinaryInv)
+	gocv.Threshold(img, &thresh, 220, 255, gocv.ThresholdBinaryInv)
 
 	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{3, 3})
 
@@ -84,7 +72,7 @@ func Cut(input string, destination string) error {
 	closed.Close()
 	centroids.Close()
 
-	minSizeForStaff := deskewed.Cols() * 5
+	minSizeForStaff := img.Cols() * 5
 
 	var staves []staff
 
@@ -170,7 +158,7 @@ func Cut(input string, destination string) error {
 
 		maskCropped := binary.Region(boundingRect)
 		binary.Close()
-		imgCropped := deskewed.Region(boundingRect)
+		imgCropped := img.Region(boundingRect)
 
 		inverted := gocv.NewMat()
 		if err := gocv.BitwiseNot(imgCropped, &inverted); err != nil {
@@ -202,7 +190,7 @@ func Cut(input string, destination string) error {
 		gocv.IMWrite(output_path, padded)
 		padded.Close()
 	}
-	deskewed.Close()
+	img.Close()
 	return nil
 
 }
