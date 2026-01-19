@@ -49,7 +49,7 @@ func paddingCmdExecute(input string) error {
 
 func Padding(img gocv.Mat) (gocv.Mat, error) {
 	padded := gocv.NewMat()
-	paddingSize := img.Cols() / 50
+	paddingSize := util.MmToPixel(5, img.Cols())
 
 	boundingBox, err := getBoundingBox(img)
 	if err != nil {

@@ -44,7 +44,7 @@ func trimCmdExecute(input string) error {
 }
 
 func Trim(img gocv.Mat) gocv.Mat {
-	trimSize := img.Cols() / 20
+	trimSize := util.MmToPixel(10, img.Cols())
 	trimmedRect := image.Rect(0, trimSize, img.Cols(), img.Rows()-trimSize)
 
 	return img.Region(trimmedRect)
