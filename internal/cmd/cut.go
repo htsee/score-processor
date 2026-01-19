@@ -178,7 +178,7 @@ func Cut(input string, destination string) error {
 		}
 		invertedMasked.Close()
 
-		padded, err := Padding(masked)
+		padded, err := Padding(masked, 5, 5)
 		if err != nil {
 			return err
 		}

@@ -14,8 +14,24 @@ var TrimCmd = &cobra.Command{
 	Short: "Trim image borders",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		top, err := cmd.Flags().GetInt("top")
+		if err != nil {
+			return err
+		}
+		bottom, err := cmd.Flags().GetInt("bottom")
+		if err != nil {
+			return err
+		}
+		left, err := cmd.Flags().GetInt("left")
+		if err != nil {
+			return err
+		}
+		right, err := cmd.Flags().GetInt("right")
+		if err != nil {
+			return err
+		}
 		for _, input := range args {
-			if err := trimCmdExecute(input); err != nil {
+			if err := trimCmdExecute(input, top, bottom, left, right); err != nil {
 				return err
 			}
 		}
@@ -23,7 +39,7 @@ var TrimCmd = &cobra.Command{
 	},
 }
 
-func trimCmdExecute(input string) error {
+func trimCmdExecute(input string, top, bottom, left, right int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -34,7 +50,7 @@ func trimCmdExecute(input string) error {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
 
-	trimmed := Trim(img)
+	trimmed := Trim(img, top, bottom, left, right)
 	img.Close()
 
 	gocv.IMWrite(input, trimmed)
@@ -43,9 +59,8 @@ func trimCmdExecute(input string) error {
 	return nil
 }
 
-func Trim(img gocv.Mat) gocv.Mat {
-	trimSize := util.MmToPixel(10, img.Cols())
-	trimmedRect := image.Rect(0, trimSize, img.Cols(), img.Rows()-trimSize)
+func Trim(img gocv.Mat, top, bottom, left, right int) gocv.Mat {
+	trimmedRect := image.Rect(left, top, img.Cols()-right, img.Rows()-bottom)
 
 	return img.Region(trimmedRect)
 }

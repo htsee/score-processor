@@ -25,12 +25,18 @@ func init() {
 	DeskewCmd.SilenceErrors = true
 	RootCmd.AddCommand(DeskewCmd)
 
+	PaddingCmd.Flags().IntP("vpad", "V", 10, "Vertical padding (in mm)")
+	PaddingCmd.Flags().IntP("hpad", "H", 10, "Horizontal padding (in mm)")
 	PaddingCmd.SilenceErrors = true
 	RootCmd.AddCommand(PaddingCmd)
 
 	DenoiseCmd.SilenceErrors = true
 	RootCmd.AddCommand(DenoiseCmd)
 
+	TrimCmd.Flags().IntP("top", "t", 12, "Trim top (in mm)")
+	TrimCmd.Flags().IntP("bottom", "b", 12, "Trim bottom (in mm)")
+	TrimCmd.Flags().IntP("left", "l", 0, "Trim left (in mm)")
+	TrimCmd.Flags().IntP("right", "r", 0, "Trim right (in mm)")
 	TrimCmd.SilenceErrors = true
 	RootCmd.AddCommand(TrimCmd)
 }

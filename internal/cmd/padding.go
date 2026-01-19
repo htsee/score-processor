@@ -15,8 +15,16 @@ var PaddingCmd = &cobra.Command{
 	Short: "Pad image with white border",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		vpad, err := cmd.Flags().GetInt("vpad")
+		if err != nil {
+			return err
+		}
+		hpad, err := cmd.Flags().GetInt("hpad")
+		if err != nil {
+			return err
+		}
 		for _, input := range args {
-			if err := paddingCmdExecute(input); err != nil {
+			if err := paddingCmdExecute(input, vpad, hpad); err != nil {
 				return err
 			}
 		}
@@ -24,7 +32,7 @@ var PaddingCmd = &cobra.Command{
 	},
 }
 
-func paddingCmdExecute(input string) error {
+func paddingCmdExecute(input string, vpad, hpad int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -35,7 +43,7 @@ func paddingCmdExecute(input string) error {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
 
-	padded, err := Padding(img)
+	padded, err := Padding(img, vpad, hpad)
 	if err != nil {
 		return fmt.Errorf("Failed to pad image: %w", err)
 	}
@@ -47,9 +55,8 @@ func paddingCmdExecute(input string) error {
 	return nil
 }
 
-func Padding(img gocv.Mat) (gocv.Mat, error) {
+func Padding(img gocv.Mat, vpad, hpad int) (gocv.Mat, error) {
 	padded := gocv.NewMat()
-	paddingSize := util.MmToPixel(5, img.Cols())
 
 	boundingBox, err := getBoundingBox(img)
 	if err != nil {
@@ -58,7 +65,7 @@ func Padding(img gocv.Mat) (gocv.Mat, error) {
 
 	cropped := img.Region(boundingBox)
 
-	err = gocv.CopyMakeBorder(cropped, &padded, paddingSize, paddingSize, paddingSize, paddingSize, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+	err = gocv.CopyMakeBorder(cropped, &padded, vpad, vpad, hpad, hpad, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
 	if err != nil {
 		return img, err
 	}
@@ -69,7 +76,7 @@ func Padding(img gocv.Mat) (gocv.Mat, error) {
 
 func getBoundingBox(img gocv.Mat) (image.Rectangle, error) {
 	thresh := gocv.NewMat()
-	gocv.Threshold(img, &thresh, 50, 255, gocv.ThresholdBinaryInv)
+	gocv.Threshold(img, &thresh, 220, 255, gocv.ThresholdBinaryInv)
 
 	nonZero := gocv.NewMat()
 	if err := gocv.FindNonZero(thresh, &nonZero); err != nil {
