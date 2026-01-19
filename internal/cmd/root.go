@@ -25,10 +25,10 @@ func init() {
 	DeskewCmd.SilenceErrors = true
 	RootCmd.AddCommand(DeskewCmd)
 
-	PaddingCmd.Flags().IntP("vpad", "V", 10, "Vertical padding (in mm)")
-	PaddingCmd.Flags().IntP("hpad", "H", 10, "Horizontal padding (in mm)")
-	PaddingCmd.SilenceErrors = true
-	RootCmd.AddCommand(PaddingCmd)
+	PadCmd.Flags().IntP("vpad", "V", 10, "Vertical padding (in mm)")
+	PadCmd.Flags().IntP("hpad", "H", 10, "Horizontal padding (in mm)")
+	PadCmd.SilenceErrors = true
+	RootCmd.AddCommand(PadCmd)
 
 	DenoiseCmd.SilenceErrors = true
 	RootCmd.AddCommand(DenoiseCmd)

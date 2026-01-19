@@ -10,8 +10,8 @@ import (
 	"gocv.io/x/gocv"
 )
 
-var PaddingCmd = &cobra.Command{
-	Use:   "padding [inputs]",
+var PadCmd = &cobra.Command{
+	Use:   "pad [inputs]",
 	Short: "Pad image with white border",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -24,7 +24,7 @@ var PaddingCmd = &cobra.Command{
 			return err
 		}
 		for _, input := range args {
-			if err := paddingCmdExecute(input, vpad, hpad); err != nil {
+			if err := padCmdExecute(input, vpad, hpad); err != nil {
 				return err
 			}
 		}
@@ -32,7 +32,7 @@ var PaddingCmd = &cobra.Command{
 	},
 }
 
-func paddingCmdExecute(input string, vpad, hpad int) error {
+func padCmdExecute(input string, vpad, hpad int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func paddingCmdExecute(input string, vpad, hpad int) error {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
 
-	padded, err := Padding(img, vpad, hpad)
+	padded, err := Pad(img, vpad, hpad)
 	if err != nil {
 		return fmt.Errorf("Failed to pad image: %w", err)
 	}
@@ -55,7 +55,7 @@ func paddingCmdExecute(input string, vpad, hpad int) error {
 	return nil
 }
 
-func Padding(img gocv.Mat, vpad, hpad int) (gocv.Mat, error) {
+func Pad(img gocv.Mat, vpad, hpad int) (gocv.Mat, error) {
 	padded := gocv.NewMat()
 
 	boundingBox, err := getBoundingBox(img)
