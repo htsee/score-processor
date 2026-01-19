@@ -20,4 +20,5 @@ func init() {
 	RootCmd.AddCommand(DeskewCmd)
 	RootCmd.AddCommand(PaddingCmd)
 	RootCmd.AddCommand(DenoiseCmd)
+	RootCmd.AddCommand(TrimCmd)
 }

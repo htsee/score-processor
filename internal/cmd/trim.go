@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"image"
 
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
@@ -9,8 +10,8 @@ import (
 )
 
 var TrimCmd = &cobra.Command{
-	Use:   "denoise [inputs]",
-	Short: "Remove noise from image",
+	Use:   "trim [inputs]",
+	Short: "Trim image borders",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		for _, input := range args {
@@ -33,10 +34,7 @@ func trimCmdExecute(input string) error {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
 
-	trimmed, err := Trim(img)
-	if err != nil {
-		return fmt.Errorf("Failed to trim image: %w", err)
-	}
+	trimmed := Trim(img)
 	img.Close()
 
 	gocv.IMWrite(input, trimmed)
@@ -45,6 +43,9 @@ func trimCmdExecute(input string) error {
 	return nil
 }
 
-func Trim(img gocv.Mat) (gocv.Mat, error) {
-	return img, nil
+func Trim(img gocv.Mat) gocv.Mat {
+	trimSize := img.Cols() / 20
+	trimmedRect := image.Rect(0, trimSize, img.Cols(), img.Rows()-trimSize)
+
+	return img.Region(trimmedRect)
 }
