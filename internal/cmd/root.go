@@ -44,4 +44,9 @@ func init() {
 
 	SpliceCmd.SilenceErrors = true
 	RootCmd.AddCommand(SpliceCmd)
+
+	FitCmd.Flags().IntP("width", "W", 16, "Width")
+	FitCmd.Flags().IntP("height", "H", 9, "Height")
+	FitCmd.SilenceErrors = true
+	RootCmd.AddCommand(FitCmd)
 }
