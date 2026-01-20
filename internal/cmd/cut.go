@@ -52,7 +52,7 @@ func Cut(input string, destination string) error {
 
 	thresh := gocv.NewMat()
 
-	gocv.Threshold(img, &thresh, 220, 255, gocv.ThresholdBinaryInv)
+	gocv.Threshold(img, &thresh, 225, 255, gocv.ThresholdBinaryInv)
 
 	kernel := gocv.GetStructuringElement(gocv.MorphRect, image.Point{3, 3})
 
@@ -141,24 +141,10 @@ func Cut(input string, destination string) error {
 	stats.Close()
 
 	for i, staff := range staves {
-		binary := gocv.NewMat()
-		gocv.Threshold(staff.mask, &binary, 1, 255, gocv.ThresholdBinary)
+		boundingBox, err := getBoundingBox(staff.mask)
+		maskCropped := staff.mask.Region(boundingBox)
 		staff.mask.Close()
-
-		nonZero := gocv.NewMat()
-		if err := gocv.FindNonZero(binary, &nonZero); err != nil {
-			return err
-		}
-
-		pointVector := gocv.NewPointVectorFromMat(nonZero)
-		nonZero.Close()
-
-		boundingRect := gocv.BoundingRect(pointVector)
-		pointVector.Close()
-
-		maskCropped := binary.Region(boundingRect)
-		binary.Close()
-		imgCropped := img.Region(boundingRect)
+		imgCropped := img.Region(boundingBox)
 
 		inverted := gocv.NewMat()
 		if err := gocv.BitwiseNot(imgCropped, &inverted); err != nil {
@@ -178,7 +164,7 @@ func Cut(input string, destination string) error {
 		}
 		invertedMasked.Close()
 
-		padded, err := Pad(masked, 5, 5)
+		padded, err := Pad(masked, 10, 10)
 		if err != nil {
 			return err
 		}

@@ -76,7 +76,7 @@ func Pad(img gocv.Mat, vpad, hpad int) (gocv.Mat, error) {
 
 func getBoundingBox(img gocv.Mat) (image.Rectangle, error) {
 	thresh := gocv.NewMat()
-	gocv.Threshold(img, &thresh, 220, 255, gocv.ThresholdBinaryInv)
+	gocv.Threshold(img, &thresh, 225, 255, gocv.ThresholdBinaryInv)
 
 	nonZero := gocv.NewMat()
 	if err := gocv.FindNonZero(thresh, &nonZero); err != nil {
