@@ -7,7 +7,6 @@ import (
 	"math"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 
 	"github.com/htsee/score-processor/internal/util"
@@ -16,13 +15,17 @@ import (
 )
 
 var RotateCmd = &cobra.Command{
-	Use:   "rotate [inputs] [destination] [angle]",
+	Use:   "rotate [inputs] [destination]",
 	Short: "Rotate images clockwise",
-	Args:  cobra.MinimumNArgs(3),
+	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		inputs := args[0 : len(args)-2]
-		destination := args[len(args)-2]
-		angle := args[len(args)-1]
+		inputs := args[0 : len(args)-1]
+		destination := args[len(args)-1]
+		angle, err := cmd.Flags().GetFloat64("angle")
+		if err != nil {
+			return err
+
+		}
 		for _, input := range inputs {
 			if err := rotateCmdExecute(input, destination, angle); err != nil {
 				return err
@@ -32,7 +35,7 @@ var RotateCmd = &cobra.Command{
 	},
 }
 
-func rotateCmdExecute(input, destination, angle string) error {
+func rotateCmdExecute(input, destination string, angle float64) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -47,13 +50,7 @@ func rotateCmdExecute(input, destination, angle string) error {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
 
-	angleFloat, err := strconv.ParseFloat(angle, 64)
-
-	if err != nil {
-		return fmt.Errorf("Angle not valid: %w", err)
-	}
-
-	rotated, err := Rotate(img, -angleFloat)
+	rotated, err := Rotate(img, -angle)
 	if err != nil {
 		return fmt.Errorf("Failed to rotate image: %w", err)
 	}

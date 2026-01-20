@@ -19,6 +19,7 @@ func init() {
 	CutCmd.SilenceErrors = true
 	RootCmd.AddCommand(CutCmd)
 
+	RotateCmd.Flags().Float64P("angle", "a", 0, "Angle (in degrees)")
 	RotateCmd.SilenceErrors = true
 	RootCmd.AddCommand(RotateCmd)
 
