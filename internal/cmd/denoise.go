@@ -13,10 +13,15 @@ import (
 var DenoiseCmd = &cobra.Command{
 	Use:   "denoise [inputs]",
 	Short: "Remove noise from image",
+	Long:  "Remove noise from image. If elements are close to each other, they are consider part of a bigger element (so staccato dots and text would not be accidentally removed). Large size can remove page numbers.",
 	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		size, err := cmd.Flags().GetInt("size")
+		if err != nil {
+			return err
+		}
 		for _, input := range args {
-			if err := denoiseCmdExecute(input); err != nil {
+			if err := denoiseCmdExecute(input, size); err != nil {
 				return err
 			}
 		}
@@ -24,7 +29,7 @@ var DenoiseCmd = &cobra.Command{
 	},
 }
 
-func denoiseCmdExecute(input string) error {
+func denoiseCmdExecute(input string, size int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -35,7 +40,7 @@ func denoiseCmdExecute(input string) error {
 		return fmt.Errorf("Cannot read image %q", input)
 	}
 
-	denoised, err := Denoise(img)
+	denoised, err := Denoise(img, size)
 	if err != nil {
 		return fmt.Errorf("Failed to denoise image: %w", err)
 	}
@@ -47,7 +52,7 @@ func denoiseCmdExecute(input string) error {
 	return nil
 }
 
-func Denoise(img gocv.Mat) (gocv.Mat, error) {
+func Denoise(img gocv.Mat, size int) (gocv.Mat, error) {
 	denoised := gocv.NewMat()
 
 	thresh := gocv.NewMat()
@@ -72,7 +77,7 @@ func Denoise(img gocv.Mat) (gocv.Mat, error) {
 	closed.Close()
 	centroids.Close()
 
-	maxSizeForNoise := math.Pow(float64(img.Cols()/200), 2)
+	maxSizeForNoise := math.Pow(float64(util.MmToPixel(size, img.Cols())), 2)
 
 	mergedMask := gocv.NewMatWithSize(img.Rows(), img.Cols(), gocv.MatTypeCV8U)
 	mergedMask.SetTo(gocv.Scalar{Val1: 255})

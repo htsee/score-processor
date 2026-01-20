@@ -30,6 +30,7 @@ func init() {
 	PadCmd.SilenceErrors = true
 	RootCmd.AddCommand(PadCmd)
 
+	DenoiseCmd.Flags().IntP("size", "s", 2, "Size (radius) of noise removed (in mm)")
 	DenoiseCmd.SilenceErrors = true
 	RootCmd.AddCommand(DenoiseCmd)
 
