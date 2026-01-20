@@ -40,4 +40,7 @@ func init() {
 	TrimCmd.Flags().IntP("right", "r", 0, "Trim right (in mm)")
 	TrimCmd.SilenceErrors = true
 	RootCmd.AddCommand(TrimCmd)
+
+	SpliceCmd.SilenceErrors = true
+	RootCmd.AddCommand(SpliceCmd)
 }
