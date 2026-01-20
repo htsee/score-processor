@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"os"
+	"path"
+	"strings"
 
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
@@ -11,10 +14,12 @@ import (
 )
 
 var PadCmd = &cobra.Command{
-	Use:   "pad [inputs]",
+	Use:   "pad [inputs] [destination]",
 	Short: "Pad image with white border",
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		inputs := args[0 : len(args)-1]
+		destination := args[len(args)-1]
 		vpad, err := cmd.Flags().GetInt("vpad")
 		if err != nil {
 			return err
@@ -23,8 +28,8 @@ var PadCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, input := range args {
-			if err := padCmdExecute(input, vpad, hpad); err != nil {
+		for _, input := range inputs {
+			if err := padCmdExecute(input, destination, vpad, hpad); err != nil {
 				return err
 			}
 		}
@@ -32,9 +37,13 @@ var PadCmd = &cobra.Command{
 	},
 }
 
-func padCmdExecute(input string, vpad, hpad int) error {
+func padCmdExecute(input, destination string, vpad, hpad int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
+	}
+
+	if err := os.MkdirAll(destination, 0755); err != nil {
+		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
@@ -49,7 +58,10 @@ func padCmdExecute(input string, vpad, hpad int) error {
 	}
 	img.Close()
 
-	gocv.IMWrite(input, padded)
+	img_name, _ := strings.CutSuffix(path.Base(input), ".png")
+	output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
+
+	gocv.IMWrite(output_path, padded)
 	padded.Close()
 
 	return nil

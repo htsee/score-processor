@@ -5,7 +5,10 @@ import (
 	"image"
 	"image/color"
 	"math"
+	"os"
+	"path"
 	"strconv"
+	"strings"
 
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
@@ -13,14 +16,15 @@ import (
 )
 
 var RotateCmd = &cobra.Command{
-	Use:   "rotate [inputs] [angle]",
+	Use:   "rotate [inputs] [destination] [angle]",
 	Short: "Rotate images clockwise",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.MinimumNArgs(3),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		inputs := args[0 : len(args)-1]
+		inputs := args[0 : len(args)-2]
+		destination := args[len(args)-2]
 		angle := args[len(args)-1]
 		for _, input := range inputs {
-			if err := rotateCmdExecute(input, angle); err != nil {
+			if err := rotateCmdExecute(input, destination, angle); err != nil {
 				return err
 			}
 		}
@@ -28,9 +32,13 @@ var RotateCmd = &cobra.Command{
 	},
 }
 
-func rotateCmdExecute(input, angle string) error {
+func rotateCmdExecute(input, destination, angle string) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
+	}
+
+	if err := os.MkdirAll(destination, 0755); err != nil {
+		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
@@ -51,7 +59,10 @@ func rotateCmdExecute(input, angle string) error {
 	}
 	img.Close()
 
-	gocv.IMWrite(input, rotated)
+	img_name, _ := strings.CutSuffix(path.Base(input), ".png")
+	output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
+
+	gocv.IMWrite(output_path, rotated)
 	rotated.Close()
 
 	return nil

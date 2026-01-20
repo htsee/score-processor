@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"image"
 	"math"
+	"os"
+	"path"
+	"strings"
 
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
@@ -11,17 +14,19 @@ import (
 )
 
 var DenoiseCmd = &cobra.Command{
-	Use:   "denoise [inputs]",
+	Use:   "denoise [inputs] [destination]",
 	Short: "Remove noise from image",
 	Long:  "Remove noise from image. If elements are close to each other, they are consider part of a bigger element (so staccato dots and text would not be accidentally removed). Large size can remove page numbers.",
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		inputs := args[0 : len(args)-1]
+		destination := args[len(args)-1]
 		size, err := cmd.Flags().GetInt("size")
 		if err != nil {
 			return err
 		}
-		for _, input := range args {
-			if err := denoiseCmdExecute(input, size); err != nil {
+		for _, input := range inputs {
+			if err := denoiseCmdExecute(input, destination, size); err != nil {
 				return err
 			}
 		}
@@ -29,9 +34,13 @@ var DenoiseCmd = &cobra.Command{
 	},
 }
 
-func denoiseCmdExecute(input string, size int) error {
+func denoiseCmdExecute(input, destination string, size int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
+	}
+
+	if err := os.MkdirAll(destination, 0755); err != nil {
+		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
@@ -46,7 +55,10 @@ func denoiseCmdExecute(input string, size int) error {
 	}
 	img.Close()
 
-	gocv.IMWrite(input, denoised)
+	img_name, _ := strings.CutSuffix(path.Base(input), ".png")
+	output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
+
+	gocv.IMWrite(output_path, denoised)
 	denoised.Close()
 
 	return nil
