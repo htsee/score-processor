@@ -34,8 +34,8 @@ func init() {
 	DenoiseCmd.SilenceErrors = true
 	RootCmd.AddCommand(DenoiseCmd)
 
-	TrimCmd.Flags().IntP("top", "t", 12, "Trim top (in mm)")
-	TrimCmd.Flags().IntP("bottom", "b", 12, "Trim bottom (in mm)")
+	TrimCmd.Flags().IntP("top", "t", 0, "Trim top (in mm)")
+	TrimCmd.Flags().IntP("bottom", "b", 0, "Trim bottom (in mm)")
 	TrimCmd.Flags().IntP("left", "l", 0, "Trim left (in mm)")
 	TrimCmd.Flags().IntP("right", "r", 0, "Trim right (in mm)")
 	TrimCmd.SilenceErrors = true
