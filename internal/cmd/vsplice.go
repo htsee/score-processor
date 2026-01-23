@@ -28,6 +28,12 @@ var VSpliceCmd = &cobra.Command{
 }
 
 func VSplice(inputs []string, destination string) error {
+	for _, input := range inputs {
+		if err := util.CheckFileType(input, "png"); err != nil {
+			return err
+		}
+	}
+
 	if err := os.MkdirAll(destination, 0755); err != nil {
 		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
 	}
@@ -37,12 +43,6 @@ func VSplice(inputs []string, destination string) error {
 		end = min(end, len(inputs))
 		pair := inputs[i:end]
 		if len(pair) >= 2 {
-			if err := util.CheckFileType(pair[0], "png"); err != nil {
-				return err
-			}
-			if err := util.CheckFileType(pair[1], "png"); err != nil {
-				return err
-			}
 			img1 := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
 			img2 := gocv.IMRead(pair[1], gocv.IMReadGrayScale)
 			if img1.Empty() {
@@ -79,9 +79,6 @@ func VSplice(inputs []string, destination string) error {
 			gocv.IMWrite(output_path, fitted)
 			fitted.Close()
 		} else {
-			if err := util.CheckFileType(pair[0], "png"); err != nil {
-				return err
-			}
 			img := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
 			if img.Empty() {
 				return fmt.Errorf("Cannot read image %q", pair[0])
