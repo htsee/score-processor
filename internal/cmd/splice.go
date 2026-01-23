@@ -61,6 +61,11 @@ func Splice(inputs []string, destination string) error {
 		}
 
 		image = append(image, img)
+		if i == len(inputs)-1 {
+			if err := combine(image, maxWidth, index, destination); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
