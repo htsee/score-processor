@@ -17,6 +17,7 @@
     {
       packages.${system}.default = pkgs.buildGoModule {
         name = "score-processor";
+        version = "0.1.0";
         src = self;
         goSum = ./go.sum;
         vendorHash = "sha256-+6G2OJPG2aVPqJgrJP6le1+fMtuBs1S59xZ0/wwzuX4=";

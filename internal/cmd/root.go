@@ -52,4 +52,7 @@ func init() {
 	FitCmd.Flags().IntP("height", "H", 9, "Height")
 	FitCmd.SilenceErrors = true
 	RootCmd.AddCommand(FitCmd)
+
+	VersionCmd.SilenceErrors = true
+	RootCmd.AddCommand(VersionCmd)
 }
