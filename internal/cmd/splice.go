@@ -13,7 +13,7 @@ import (
 
 var SpliceCmd = &cobra.Command{
 	Use:   "splice [inputs] [destination]",
-	Short: "Splice images",
+	Short: "Splice images horizontally",
 	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]

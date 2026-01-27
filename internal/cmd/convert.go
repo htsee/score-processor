@@ -14,8 +14,7 @@ import (
 
 var ConvertCmd = &cobra.Command{
 	Use:   "convert [inputs] [destination]",
-	Short: "Convert PDFs to images",
-	Long:  "Convert PDFs to images (PNG). Automatically create destination folder if it does not exist. Require \"muPDF\".",
+	Short: "Convert PDFs to images. Requires mupdf",
 	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]

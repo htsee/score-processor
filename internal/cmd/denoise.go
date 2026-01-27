@@ -16,7 +16,7 @@ import (
 var DenoiseCmd = &cobra.Command{
 	Use:   "denoise [inputs] [destination]",
 	Short: "Remove noise from image",
-	Long:  "Remove noise from image. If elements are close to each other, they are consider part of a bigger element (so staccato dots and text would not be accidentally removed). Large size can remove page numbers.",
+	Long:  "Remove noise from image. If elements are close to each other, they are considered part of a bigger element (so staccato dots and text would not be accidentally removed). Large size can be used to remove page numbers.",
 	Args:  cobra.MinimumNArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]
