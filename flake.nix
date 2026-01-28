@@ -30,6 +30,7 @@
         packages = with pkgs; [
           go
           gopls
+          golangci-lint
           opencv
           mupdf-headless
           pkg-config

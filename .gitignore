@@ -1,7 +1,7 @@
+.direnv/
 score-processor
 result
 *.png
 *.jpg
-
 *.pdf
 !testdata/*
