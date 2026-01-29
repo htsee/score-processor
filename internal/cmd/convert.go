@@ -38,7 +38,7 @@ func Convert(pdf, destination, pages string) error {
 	}
 
 	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
+		return fmt.Errorf("cannot create folder %q: %w", destination, err)
 	}
 
 	pdf_name, _ := strings.CutSuffix(path.Base(pdf), ".pdf")
@@ -49,7 +49,7 @@ func Convert(pdf, destination, pages string) error {
 		if errors.Is(err, exec.ErrNotFound) {
 			return errors.New("\"mutool\" not found. Install \"muPDF\" to use this command")
 		}
-		return fmt.Errorf("Failed to convert PDF: %w", err)
+		return fmt.Errorf("failed to convert PDF: %w", err)
 	}
 	return nil
 }

@@ -41,13 +41,13 @@ func Cut(input string, destination string) error {
 	}
 
 	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
+		return fmt.Errorf("cannot create folder %q: %w", destination, err)
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
 
 	if img.Empty() {
-		return fmt.Errorf("Cannot read image %q", input)
+		return fmt.Errorf("cannot read image %q", input)
 	}
 
 	thresh := gocv.NewMat()

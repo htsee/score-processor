@@ -43,18 +43,18 @@ func padCmdExecute(input, destination string, vpad, hpad int) error {
 	}
 
 	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
+		return fmt.Errorf("cannot create folder %q: %w", destination, err)
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
 
 	if img.Empty() {
-		return fmt.Errorf("Cannot read image %q", input)
+		return fmt.Errorf("cannot read image %q", input)
 	}
 
 	padded, err := Pad(img, vpad, hpad)
 	if err != nil {
-		return fmt.Errorf("Failed to pad image: %w", err)
+		return fmt.Errorf("failed to pad image: %w", err)
 	}
 	img.Close()
 

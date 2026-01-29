@@ -35,7 +35,7 @@ func VSplice(inputs []string, destination string) error {
 	}
 
 	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
+		return fmt.Errorf("cannot create folder %q: %w", destination, err)
 	}
 
 	for i := 0; i < len(inputs); i += 2 {
@@ -46,10 +46,10 @@ func VSplice(inputs []string, destination string) error {
 			img1 := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
 			img2 := gocv.IMRead(pair[1], gocv.IMReadGrayScale)
 			if img1.Empty() {
-				return fmt.Errorf("Cannot read image %q", pair[0])
+				return fmt.Errorf("cannot read image %q", pair[0])
 			}
 			if img2.Empty() {
-				return fmt.Errorf("Cannot read image %q", pair[1])
+				return fmt.Errorf("cannot read image %q", pair[1])
 			}
 
 			spliced := gocv.NewMat()
@@ -81,7 +81,7 @@ func VSplice(inputs []string, destination string) error {
 		} else {
 			img := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
 			if img.Empty() {
-				return fmt.Errorf("Cannot read image %q", pair[0])
+				return fmt.Errorf("cannot read image %q", pair[0])
 			}
 
 			fitted, err := Fit(img, 16.0/9.0)

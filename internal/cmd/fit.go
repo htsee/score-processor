@@ -43,18 +43,18 @@ func fitCmdExecute(input, destination string, ratio float64) error {
 	}
 
 	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("Cannot create folder %q: %w", destination, err)
+		return fmt.Errorf("cannot create folder %q: %w", destination, err)
 	}
 
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
 
 	if img.Empty() {
-		return fmt.Errorf("Cannot read image %q", input)
+		return fmt.Errorf("cannot read image %q", input)
 	}
 
 	fitted, err := Fit(img, ratio)
 	if err != nil {
-		return fmt.Errorf("Failed to denoise image: %w", err)
+		return fmt.Errorf("failed to fit image: %w", err)
 	}
 	img.Close()
 
