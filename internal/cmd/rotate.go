@@ -54,13 +54,17 @@ func rotateCmdExecute(input, destination string, angle float64) error {
 	if err != nil {
 		return fmt.Errorf("failed to rotate image: %w", err)
 	}
-	img.Close()
+	if err := img.Close(); err != nil {
+		return err
+	}
 
 	img_name, _ := strings.CutSuffix(path.Base(input), ".png")
 	output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
 
 	gocv.IMWrite(output_path, rotated)
-	rotated.Close()
+	if err := rotated.Close(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -86,7 +90,9 @@ func Rotate(img gocv.Mat, angle float64) (gocv.Mat, error) {
 	if err != nil {
 		return img, err
 	}
-	rotationMatrix.Close()
+	if err := rotationMatrix.Close(); err != nil {
+		return img, err
+	}
 
 	return rotated, nil
 }

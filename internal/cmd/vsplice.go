@@ -57,27 +57,41 @@ func VSplice(inputs []string, destination string) error {
 			padding := math.Abs(float64(h1-h2)) / 2.0
 
 			if h1 > h2 {
-				gocv.CopyMakeBorder(img2, &img2, int(math.Ceil(padding)), int(math.Floor(padding)), 0, 0, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+				err := gocv.CopyMakeBorder(img2, &img2, int(math.Ceil(padding)), int(math.Floor(padding)), 0, 0, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+				if err != nil {
+					return err
+				}
 			} else {
-				gocv.CopyMakeBorder(img1, &img1, int(math.Ceil(padding)), int(math.Floor(padding)), 0, 0, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+				err := gocv.CopyMakeBorder(img1, &img1, int(math.Ceil(padding)), int(math.Floor(padding)), 0, 0, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+				if err != nil {
+					return err
+				}
 			}
 
 			if err := gocv.Hconcat(img1, img2, &spliced); err != nil {
 				return err
 			}
-			img1.Close()
-			img2.Close()
+			if err := img1.Close(); err != nil {
+				return err
+			}
+			if err := img2.Close(); err != nil {
+				return err
+			}
 
 			fitted, err := Fit(spliced, 16.0/9.0)
 			if err != nil {
 				return err
 			}
-			spliced.Close()
+			if err := spliced.Close(); err != nil {
+				return err
+			}
 
 			img_name, _ := strings.CutSuffix(path.Base(pair[0]), ".png")
 			output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
 			gocv.IMWrite(output_path, fitted)
-			fitted.Close()
+			if err := fitted.Close(); err != nil {
+				return err
+			}
 		} else {
 			img := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
 			if img.Empty() {
@@ -88,12 +102,16 @@ func VSplice(inputs []string, destination string) error {
 			if err != nil {
 				return err
 			}
-			img.Close()
+			if err := img.Close(); err != nil {
+				return err
+			}
 
 			img_name, _ := strings.CutSuffix(path.Base(pair[0]), ".png")
 			output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
 			gocv.IMWrite(output_path, fitted)
-			fitted.Close()
+			if err := fitted.Close(); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

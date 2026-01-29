@@ -56,13 +56,17 @@ func fitCmdExecute(input, destination string, ratio float64) error {
 	if err != nil {
 		return fmt.Errorf("failed to fit image: %w", err)
 	}
-	img.Close()
+	if err := img.Close(); err != nil {
+		return err
+	}
 
 	img_name, _ := strings.CutSuffix(path.Base(input), ".png")
 	output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
 
 	gocv.IMWrite(output_path, fitted)
-	fitted.Close()
+	if err := fitted.Close(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -73,10 +77,16 @@ func Fit(img gocv.Mat, ratio float64) (gocv.Mat, error) {
 	fitted := gocv.NewMat()
 	if w/h < ratio {
 		padding := int((h*ratio - w) / 2)
-		gocv.CopyMakeBorder(img, &fitted, 0, 0, padding, padding, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+		err := gocv.CopyMakeBorder(img, &fitted, 0, 0, padding, padding, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+		if err != nil {
+			return img, err
+		}
 	} else {
 		padding := int((w/ratio - h) / 2)
-		gocv.CopyMakeBorder(img, &fitted, padding, padding, 0, 0, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+		err := gocv.CopyMakeBorder(img, &fitted, padding, padding, 0, 0, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+		if err != nil {
+			return img, err
+		}
 	}
 	return fitted, nil
 }

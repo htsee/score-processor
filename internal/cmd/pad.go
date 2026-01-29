@@ -56,13 +56,17 @@ func padCmdExecute(input, destination string, vpad, hpad int) error {
 	if err != nil {
 		return fmt.Errorf("failed to pad image: %w", err)
 	}
-	img.Close()
+	if err := img.Close(); err != nil {
+		return err
+	}
 
 	img_name, _ := strings.CutSuffix(path.Base(input), ".png")
 	output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
 
 	gocv.IMWrite(output_path, padded)
-	padded.Close()
+	if err := padded.Close(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -81,7 +85,9 @@ func Pad(img gocv.Mat, vpad, hpad int) (gocv.Mat, error) {
 	if err != nil {
 		return img, err
 	}
-	cropped.Close()
+	if err := cropped.Close(); err != nil {
+		return img, err
+	}
 
 	return padded, nil
 }
@@ -94,10 +100,14 @@ func getBoundingBox(img gocv.Mat) (image.Rectangle, error) {
 	if err := gocv.FindNonZero(thresh, &nonZero); err != nil {
 		return image.Rectangle{}, err
 	}
-	thresh.Close()
+	if err := thresh.Close(); err != nil {
+		return image.Rectangle{}, err
+	}
 
 	pointVector := gocv.NewPointVectorFromMat(nonZero)
-	nonZero.Close()
+	if err := nonZero.Close(); err != nil {
+		return image.Rectangle{}, err
+	}
 
 	boundingRect := gocv.BoundingRect(pointVector)
 	pointVector.Close()

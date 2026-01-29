@@ -76,22 +76,31 @@ func combine(image []gocv.Mat, width, index int, destination string) error {
 		staffWidth := staff.Cols()
 		if staffWidth < width {
 			padding := float64(width-staffWidth) / 2
-			gocv.CopyMakeBorder(staff, &staff, 0, 0, int(math.Ceil(padding)), int(math.Floor(padding)), gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+			err := gocv.CopyMakeBorder(staff, &staff, 0, 0, int(math.Ceil(padding)), int(math.Floor(padding)), gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
+			if err != nil {
+				return err
+			}
 		}
 		if i > 0 {
 			if err := gocv.Vconcat(current, staff, &current); err != nil {
 				return err
 			}
-			staff.Close()
+			if err := staff.Close(); err != nil {
+				return err
+			}
 		}
 	}
 	fitted, err := Fit(current, 16.0/9.0)
 	if err != nil {
 		return err
 	}
-	current.Close()
+	if err := current.Close(); err != nil {
+		return err
+	}
 	output_path := fmt.Sprintf("%s/%03d.png", destination, index)
 	gocv.IMWrite(output_path, fitted)
-	fitted.Close()
+	if err := fitted.Close(); err != nil {
+		return err
+	}
 	return nil
 }

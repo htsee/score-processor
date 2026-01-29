@@ -60,13 +60,17 @@ func trimCmdExecute(input, destination string, top, bottom, left, right int) err
 	}
 
 	trimmed := Trim(img, top, bottom, left, right)
-	img.Close()
+	if err := img.Close(); err != nil {
+		return err
+	}
 
 	img_name, _ := strings.CutSuffix(path.Base(input), ".png")
 	output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
 
 	gocv.IMWrite(output_path, trimmed)
-	trimmed.Close()
+	if err := trimmed.Close(); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -53,13 +53,17 @@ func denoiseCmdExecute(input, destination string, size int) error {
 	if err != nil {
 		return fmt.Errorf("failed to denoise image: %w", err)
 	}
-	img.Close()
+	if err := img.Close(); err != nil {
+		return err
+	}
 
 	img_name, _ := strings.CutSuffix(path.Base(input), ".png")
 	output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
 
 	gocv.IMWrite(output_path, denoised)
-	denoised.Close()
+	if err := denoised.Close(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -79,15 +83,25 @@ func Denoise(img gocv.Mat, size int) (gocv.Mat, error) {
 		return img, err
 	}
 
-	thresh.Close()
-	kernel.Close()
+	if err := thresh.Close(); err != nil {
+		return img, err
+	}
+
+	if err := kernel.Close(); err != nil {
+		return img, err
+	}
 
 	labels := gocv.NewMat()
 	stats := gocv.NewMat()
 	centroids := gocv.NewMat()
 	numLabels := gocv.ConnectedComponentsWithStats(closed, &labels, &stats, &centroids)
-	closed.Close()
-	centroids.Close()
+	if err := closed.Close(); err != nil {
+		return img, err
+	}
+
+	if err := centroids.Close(); err != nil {
+		return img, err
+	}
 
 	maxSizeForNoise := math.Pow(float64(util.MmToPixel(size, img.Cols())), 2)
 
@@ -113,11 +127,18 @@ func Denoise(img gocv.Mat, size int) (gocv.Mat, error) {
 			if err := gocv.BitwiseXor(mergedMask, mask, &mergedMask); err != nil {
 				return img, err
 			}
-			mask.Close()
+			if err := mask.Close(); err != nil {
+				return img, err
+			}
 		}
 	}
-	labels.Close()
-	stats.Close()
+	if err := labels.Close(); err != nil {
+		return img, err
+	}
+
+	if err := stats.Close(); err != nil {
+		return img, err
+	}
 
 	inverted := gocv.NewMat()
 
@@ -130,13 +151,18 @@ func Denoise(img gocv.Mat, size int) (gocv.Mat, error) {
 	if err := inverted.CopyToWithMask(&invertedDenoised, mergedMask); err != nil {
 		return img, err
 	}
-	inverted.Close()
-	mergedMask.Close()
-
+	if err := inverted.Close(); err != nil {
+		return img, err
+	}
+	if err := mergedMask.Close(); err != nil {
+		return img, err
+	}
 	if err := gocv.BitwiseNot(invertedDenoised, &denoised); err != nil {
 		return img, err
 	}
-	invertedDenoised.Close()
+	if err := invertedDenoised.Close(); err != nil {
+		return img, err
+	}
 
 	return denoised, nil
 }

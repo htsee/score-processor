@@ -62,15 +62,25 @@ func Cut(input string, destination string) error {
 		return err
 	}
 
-	kernel.Close()
-	thresh.Close()
+	if err := kernel.Close(); err != nil {
+		return err
+	}
+
+	if err := thresh.Close(); err != nil {
+		return err
+	}
 
 	labels := gocv.NewMat()
 	stats := gocv.NewMat()
 	centroids := gocv.NewMat()
 	numLabels := gocv.ConnectedComponentsWithStats(closed, &labels, &stats, &centroids)
-	closed.Close()
-	centroids.Close()
+
+	if err := closed.Close(); err != nil {
+		return err
+	}
+	if err := centroids.Close(); err != nil {
+		return err
+	}
 
 	minSizeForStaff := img.Cols() * 5
 
@@ -81,12 +91,14 @@ func Cut(input string, destination string) error {
 
 		if area >= int32(minSizeForStaff) {
 			mask := gocv.NewMat()
-			gocv.InRangeWithScalar(
+			if err := gocv.InRangeWithScalar(
 				labels,
 				gocv.NewScalar(float64(i), 0, 0, 0),
 				gocv.NewScalar(float64(i), 0, 0, 0),
 				&mask,
-			)
+			); err != nil {
+				return err
+			}
 
 			top := stats.GetIntAt(i, 1)
 			bottom := top + stats.GetIntAt(i, 3)
@@ -97,7 +109,10 @@ func Cut(input string, destination string) error {
 				mask:   mask.Clone(),
 			})
 
-			mask.Close()
+			if err := mask.Close(); err != nil {
+				return err
+			}
+
 		}
 	}
 
@@ -106,12 +121,14 @@ func Cut(input string, destination string) error {
 
 		if area < int32(minSizeForStaff) {
 			mask := gocv.NewMat()
-			gocv.InRangeWithScalar(
+			if err := gocv.InRangeWithScalar(
 				labels,
 				gocv.NewScalar(float64(i), 0, 0, 0),
 				gocv.NewScalar(float64(i), 0, 0, 0),
 				&mask,
-			)
+			); err != nil {
+				return err
+			}
 
 			top := stats.GetIntAt(i, 1)
 			bottom := top + stats.GetIntAt(i, 3)
@@ -134,49 +151,76 @@ func Cut(input string, destination string) error {
 				return err
 			}
 
-			mask.Close()
+			if err := mask.Close(); err != nil {
+				return err
+			}
 		}
 	}
-	labels.Close()
-	stats.Close()
+	if err := labels.Close(); err != nil {
+		return err
+	}
+
+	if err := stats.Close(); err != nil {
+		return err
+	}
 
 	for i, staff := range staves {
 		boundingBox, err := getBoundingBox(staff.mask)
+		if err != nil {
+			return err
+		}
+
 		maskCropped := staff.mask.Region(boundingBox)
-		staff.mask.Close()
+		if err := staff.mask.Close(); err != nil {
+			return err
+		}
+
 		imgCropped := img.Region(boundingBox)
 
 		inverted := gocv.NewMat()
 		if err := gocv.BitwiseNot(imgCropped, &inverted); err != nil {
 			return err
 		}
-		imgCropped.Close()
+		if err := imgCropped.Close(); err != nil {
+			return err
+		}
 
 		invertedMasked := gocv.NewMat()
 		if err := inverted.CopyToWithMask(&invertedMasked, maskCropped); err != nil {
 			return err
 		}
-		maskCropped.Close()
+
+		if err := maskCropped.Close(); err != nil {
+			return err
+		}
 
 		masked := gocv.NewMat()
 		if err := gocv.BitwiseNot(invertedMasked, &masked); err != nil {
 			return err
 		}
-		invertedMasked.Close()
+		if err := invertedMasked.Close(); err != nil {
+			return err
+		}
 
 		padded, err := Pad(masked, 10, 10)
 		if err != nil {
 			return err
 		}
-		masked.Close()
+		if err := masked.Close(); err != nil {
+			return err
+		}
 
 		img_name, _ := strings.CutSuffix(path.Base(input), ".png")
 		output_path := fmt.Sprintf("%s/%s_%03d.png", destination, img_name, i)
 
 		gocv.IMWrite(output_path, padded)
-		padded.Close()
+		if err := padded.Close(); err != nil {
+			return err
+		}
 	}
-	img.Close()
-	return nil
+	if err := img.Close(); err != nil {
+		return err
+	}
 
+	return nil
 }
