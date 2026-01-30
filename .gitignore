@@ -5,3 +5,5 @@ result
 *.jpg
 *.pdf
 !testdata/*
+!testdata/pages/*
+!testdata/cut/*
