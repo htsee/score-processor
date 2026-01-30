@@ -211,7 +211,7 @@ func Cut(input string, destination string) error {
 		}
 
 		img_name, _ := strings.CutSuffix(path.Base(input), ".png")
-		output_path := fmt.Sprintf("%s/%s_%03d.png", destination, img_name, i)
+		output_path := fmt.Sprintf("%s/%s_%03d.png", destination, img_name, i+1)
 
 		gocv.IMWrite(output_path, padded)
 		if err := padded.Close(); err != nil {
