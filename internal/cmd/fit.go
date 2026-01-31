@@ -29,7 +29,7 @@ var FitCmd = &cobra.Command{
 		}
 		ratio := float64(width) / float64(height)
 		for _, input := range inputs {
-			if err := fitCmdExecute(input, destination, ratio); err != nil {
+			if err := FitCmdExecute(input, destination, ratio); err != nil {
 				return err
 			}
 		}
@@ -37,7 +37,7 @@ var FitCmd = &cobra.Command{
 	},
 }
 
-func fitCmdExecute(input, destination string, ratio float64) error {
+func FitCmdExecute(input, destination string, ratio float64) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}

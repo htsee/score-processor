@@ -27,7 +27,7 @@ var RotateCmd = &cobra.Command{
 
 		}
 		for _, input := range inputs {
-			if err := rotateCmdExecute(input, destination, angle); err != nil {
+			if err := RotateCmdExecute(input, destination, angle); err != nil {
 				return err
 			}
 		}
@@ -35,7 +35,7 @@ var RotateCmd = &cobra.Command{
 	},
 }
 
-func rotateCmdExecute(input, destination string, angle float64) error {
+func RotateCmdExecute(input, destination string, angle float64) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}

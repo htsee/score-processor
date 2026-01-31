@@ -20,7 +20,7 @@ var DeskewCmd = &cobra.Command{
 		inputs := args[0 : len(args)-1]
 		destination := args[len(args)-1]
 		for _, input := range inputs {
-			if err := deskewCmdExecute(input, destination); err != nil {
+			if err := DeskewCmdExecute(input, destination); err != nil {
 				return err
 			}
 		}
@@ -28,7 +28,7 @@ var DeskewCmd = &cobra.Command{
 	},
 }
 
-func deskewCmdExecute(input, destination string) error {
+func DeskewCmdExecute(input, destination string) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}

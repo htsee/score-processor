@@ -29,7 +29,7 @@ var PadCmd = &cobra.Command{
 			return err
 		}
 		for _, input := range inputs {
-			if err := padCmdExecute(input, destination, vpad, hpad); err != nil {
+			if err := PadCmdExecute(input, destination, vpad, hpad); err != nil {
 				return err
 			}
 		}
@@ -37,7 +37,7 @@ var PadCmd = &cobra.Command{
 	},
 }
 
-func padCmdExecute(input, destination string, vpad, hpad int) error {
+func PadCmdExecute(input, destination string, vpad, hpad int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}

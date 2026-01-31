@@ -36,7 +36,7 @@ var TrimCmd = &cobra.Command{
 			return err
 		}
 		for _, input := range inputs {
-			if err := trimCmdExecute(input, destination, top, bottom, left, right); err != nil {
+			if err := TrimCmdExecute(input, destination, top, bottom, left, right); err != nil {
 				return err
 			}
 		}
@@ -44,7 +44,7 @@ var TrimCmd = &cobra.Command{
 	},
 }
 
-func trimCmdExecute(input, destination string, top, bottom, left, right int) error {
+func TrimCmdExecute(input, destination string, top, bottom, left, right int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}

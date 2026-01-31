@@ -26,7 +26,7 @@ var DenoiseCmd = &cobra.Command{
 			return err
 		}
 		for _, input := range inputs {
-			if err := denoiseCmdExecute(input, destination, size); err != nil {
+			if err := DenoiseCmdExecute(input, destination, size); err != nil {
 				return err
 			}
 		}
@@ -34,7 +34,7 @@ var DenoiseCmd = &cobra.Command{
 	},
 }
 
-func denoiseCmdExecute(input, destination string, size int) error {
+func DenoiseCmdExecute(input, destination string, size int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
