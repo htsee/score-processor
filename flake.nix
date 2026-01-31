@@ -1,5 +1,5 @@
 {
-  description = "A very basic flake";
+  description = "Flake for score-processor";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -21,10 +21,18 @@
         src = self;
         goSum = ./go.sum;
         vendorHash = "sha256-+6G2OJPG2aVPqJgrJP6le1+fMtuBs1S59xZ0/wwzuX4=";
-        nativeBuildInputs = with pkgs; [ pkg-config ];
+        nativeBuildInputs = with pkgs; [
+          pkg-config
+          makeWrapper
+        ];
         buildInputs = with pkgs; [
           opencv
+          mupdf-headless
         ];
+        postInstall = ''
+          					wrapProgram $out/bin/score-processor \
+          					--prefix PATH : ${pkgs.mupdf-headless}/bin
+          				'';
       };
       devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
