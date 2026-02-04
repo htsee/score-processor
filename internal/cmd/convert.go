@@ -23,13 +23,20 @@ var ConvertCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, input := range inputs {
-			if err = Convert(input, destination, pages); err != nil {
-				return err
-			}
+		if err := ConvertBatch(inputs, destination, pages); err != nil {
+			return err
 		}
 		return nil
 	},
+}
+
+func ConvertBatch(pdfs []string, destination, pages string) error {
+	for _, pdf := range pdfs {
+		if err := Convert(pdf, destination, pages); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func Convert(pdf, destination, pages string) error {

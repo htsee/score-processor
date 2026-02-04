@@ -25,13 +25,20 @@ var DenoiseCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, input := range inputs {
-			if err := DenoiseCmdExecute(input, destination, size); err != nil {
-				return err
-			}
+		if err := DenoiseBatch(inputs, destination, size); err != nil {
+			return err
 		}
 		return nil
 	},
+}
+
+func DenoiseBatch(imgs []string, destination string, size int) error {
+	for _, img := range imgs {
+		if err := DenoiseCmdExecute(img, destination, size); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func DenoiseCmdExecute(input, destination string, size int) error {

@@ -24,15 +24,21 @@ var RotateCmd = &cobra.Command{
 		angle, err := cmd.Flags().GetFloat64("angle")
 		if err != nil {
 			return err
-
 		}
-		for _, input := range inputs {
-			if err := RotateCmdExecute(input, destination, angle); err != nil {
-				return err
-			}
+		if err := RotateBatch(inputs, destination, angle); err != nil {
+			return err
 		}
 		return nil
 	},
+}
+
+func RotateBatch(imgs []string, destination string, angle float64) error {
+	for _, img := range imgs {
+		if err := RotateCmdExecute(img, destination, angle); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func RotateCmdExecute(input, destination string, angle float64) error {

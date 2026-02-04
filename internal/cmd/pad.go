@@ -28,13 +28,20 @@ var PadCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		for _, input := range inputs {
-			if err := PadCmdExecute(input, destination, vpad, hpad); err != nil {
-				return err
-			}
+		if err := PadBatch(inputs, destination, vpad, hpad); err != nil {
+			return err
 		}
 		return nil
 	},
+}
+
+func PadBatch(imgs []string, destination string, vpad, hpad int) error {
+	for _, img := range imgs {
+		if err := PadCmdExecute(img, destination, vpad, hpad); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func PadCmdExecute(input, destination string, vpad, hpad int) error {

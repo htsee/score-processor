@@ -28,13 +28,20 @@ var FitCmd = &cobra.Command{
 			return err
 		}
 		ratio := float64(width) / float64(height)
-		for _, input := range inputs {
-			if err := FitCmdExecute(input, destination, ratio); err != nil {
-				return err
-			}
+		if err := FitBatch(inputs, destination, ratio); err != nil {
+			return err
 		}
 		return nil
 	},
+}
+
+func FitBatch(imgs []string, destination string, ratio float64) error {
+	for _, img := range imgs {
+		if err := FitCmdExecute(img, destination, ratio); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func FitCmdExecute(input, destination string, ratio float64) error {

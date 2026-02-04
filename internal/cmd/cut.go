@@ -20,13 +20,20 @@ var CutCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]
 		destination := args[len(args)-1]
-		for _, input := range inputs {
-			if err := Cut(input, destination); err != nil {
-				return err
-			}
+		if err := CutBatch(inputs, destination); err != nil {
+			return err
 		}
 		return nil
 	},
+}
+
+func CutBatch(imgs []string, destination string) error {
+	for _, img := range imgs {
+		if err := Cut(img, destination); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type staff struct {

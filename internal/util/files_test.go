@@ -12,8 +12,8 @@ func TestCheckFiletype(t *testing.T) {
 		filetype string
 		want     string
 	}{
-		{"correct input", "../../testdata/test.pdf", "pdf", ""},
-		{"Input not a PDF", "../../testdata/test.png", "pdf", "file \"../../testdata/test.png\" is not a pdf"},
+		{"correct input", "../../testdata/pdf/test1.pdf", "pdf", ""},
+		{"Input not a PDF", "test.png", "pdf", "file \"test.png\" is not a pdf"},
 		{"Input does not exist", "notExist.pdf", "pdf", "file \"notExist.pdf\" does not exist"},
 	}
 

@@ -4,6 +4,6 @@ result
 *.png
 *.jpg
 *.pdf
-!testdata/*
+!testdata/pdf/*
 !testdata/pages/*
 !testdata/cut/*
