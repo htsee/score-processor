@@ -1,10 +1,16 @@
 score-processor (sp) is a tool for processing sheet music into images, inspired by edwardx999's [ScoreProcessor](https://github.com/edwardx999/ScoreProcessor).
 
 # Install
+## Go
 Make sure you have OpenCV (and optionally mupdf) installed
 ```bash
 go install github.com/htsee/score-processor
 ```
+
+## Nix
+Add `github:htsee/score-processor` as an input to your `flake.nix`
+
+Then add the package `score-processor.packages."x86_64-linux".default` to the package list of your configuration
 
 # Usage
 Type `sp` to get a list of subcommands
@@ -42,10 +48,15 @@ git clone github.com/htsee/score-processor
 cd score-processor
 ```
 
+## Go
 Make sure you have OpenCV installed
-Build:
 ```bash
 go build
+```
+
+## Nix
+```bash
+nix build
 ```
 
 Feel free to open pull requests
