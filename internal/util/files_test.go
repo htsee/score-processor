@@ -12,7 +12,7 @@ func TestCheckFiletype(t *testing.T) {
 		filetype string
 		want     string
 	}{
-		{"correct input", "../../testdata/pdf/test1.pdf", "pdf", ""},
+		{"Correct input", "../../testdata/pdf/test1.pdf", "pdf", ""},
 		{"Input not a PDF", "test.png", "pdf", "file \"test.png\" is not a pdf"},
 		{"Input does not exist", "notExist.pdf", "pdf", "file \"notExist.pdf\" does not exist"},
 	}
@@ -28,6 +28,30 @@ func TestCheckFiletype(t *testing.T) {
 			}
 			if err.Error() != tt.want {
 				t.Errorf("got %v, want %v", err, tt.want)
+			}
+		})
+	}
+}
+
+func TestFileList(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		error bool
+	}{
+		{"Correct input", "../../testdata/pdf/", false},
+		{"Input does not exist", "notExist", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := util.FileList(tt.input)
+			if err == nil && tt.error {
+				t.Errorf("got nil, want error")
+			}
+
+			if err != nil && !tt.error {
+				t.Errorf("got error %v, want nil", err)
 			}
 		})
 	}

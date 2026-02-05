@@ -1,8 +1,8 @@
 package cmd_test
 
 import (
+	"fmt"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/htsee/score-processor/internal/cmd"
@@ -10,30 +10,31 @@ import (
 )
 
 const pdfDir = "../../testdata/pdf"
-
 const pageDir = "../../testdata/pages"
-
 const cutDir = "../../testdata/cut"
 
-func fileList(dir string) ([]string, error) {
-	files, err := os.ReadDir(dir)
+var pdfList, pageList, cutList []string
+
+func TestMain(m *testing.M) {
+	var err error
+	pdfList, err = util.FileList(pdfDir)
 	if err != nil {
-		return nil, err
+		fmt.Printf("failed to load pdfDir: %v", err)
+		os.Exit(1)
 	}
-	var fileList []string
-	for _, file := range files {
-		path := filepath.Join(dir, file.Name())
-		fileList = append(fileList, path)
+	pageList, err = util.FileList(pageDir)
+	if err != nil {
+		fmt.Printf("failed to load pageDir: %v", err)
+		os.Exit(1)
 	}
-	return fileList, nil
+	cutList, err = util.FileList(cutDir)
+	if err != nil {
+		fmt.Printf("failed to load cutDir: %v", err)
+		os.Exit(1)
+	}
+
+	os.Exit(m.Run())
 }
-
-var pdfList, _ = fileList(pdfDir)
-var pageList, _ = fileList(pageDir)
-var cutList, _ = fileList(cutDir)
-
-var pdfFirst = pdfList[0]
-var pageFirst = pageList[0]
 
 const defaultPages = "1-N"
 
@@ -46,7 +47,7 @@ func BenchmarkConvertBatch(b *testing.B) {
 }
 
 func BenchmarkConvertSingle(b *testing.B) {
-	if err := cmd.Convert(pdfFirst, b.TempDir(), defaultPages); err != nil {
+	if err := cmd.Convert(pdfList[0], b.TempDir(), defaultPages); err != nil {
 		b.Error(err)
 	}
 }
@@ -60,7 +61,7 @@ func BenchmarkCutBatch(b *testing.B) {
 }
 
 func BenchmarkCutSingle(b *testing.B) {
-	if err := cmd.Cut(pageFirst, b.TempDir()); err != nil {
+	if err := cmd.Cut(pageList[0], b.TempDir()); err != nil {
 		b.Error(err)
 	}
 }
@@ -76,7 +77,7 @@ func BenchmarkDenoiseBatch(b *testing.B) {
 }
 
 func BenchmarkDenoiseSingle(b *testing.B) {
-	if err := cmd.DenoiseCmdExecute(pageFirst, b.TempDir(), defaultSize); err != nil {
+	if err := cmd.DenoiseCmdExecute(pageList[0], b.TempDir(), defaultSize); err != nil {
 		b.Error(err)
 	}
 }
@@ -90,7 +91,7 @@ func BenchmarkDeskewBatch(b *testing.B) {
 }
 
 func BenchmarkDeskewSingle(b *testing.B) {
-	if err := cmd.DeskewCmdExecute(pageFirst, b.TempDir()); err != nil {
+	if err := cmd.DeskewCmdExecute(pageList[0], b.TempDir()); err != nil {
 		b.Error(err)
 	}
 }
@@ -106,7 +107,7 @@ func BenchmarkFitBatch(b *testing.B) {
 }
 
 func BenchmarkFitSingle(b *testing.B) {
-	if err := cmd.FitCmdExecute(pageFirst, b.TempDir(), defaultRatio); err != nil {
+	if err := cmd.FitCmdExecute(pageList[0], b.TempDir(), defaultRatio); err != nil {
 		b.Error(err)
 	}
 }
@@ -122,7 +123,7 @@ func BenchmarkPadBatch(b *testing.B) {
 }
 
 func BenchmarkPadSingle(b *testing.B) {
-	if err := cmd.PadCmdExecute(pageFirst, b.TempDir(), defaultVpad, defaultHpad); err != nil {
+	if err := cmd.PadCmdExecute(pageList[0], b.TempDir(), defaultVpad, defaultHpad); err != nil {
 		b.Error(err)
 	}
 }
@@ -138,7 +139,7 @@ func BenchmarkRotateBatch(b *testing.B) {
 }
 
 func BenchmarkRotateSingle(b *testing.B) {
-	if err := cmd.RotateCmdExecute(pageFirst, b.TempDir(), defaultAngle); err != nil {
+	if err := cmd.RotateCmdExecute(pageList[0], b.TempDir(), defaultAngle); err != nil {
 		b.Error(err)
 	}
 }
@@ -160,7 +161,7 @@ func BenchmarkTrimBatch(b *testing.B) {
 }
 
 func BenchmarkTrimSingle(b *testing.B) {
-	if err := cmd.TrimCmdExecute(pageFirst, b.TempDir(), defaultTop, defaultBottom, defaultLeft, defaultRight); err != nil {
+	if err := cmd.TrimCmdExecute(pageList[0], b.TempDir(), defaultTop, defaultBottom, defaultLeft, defaultRight); err != nil {
 		b.Error(err)
 	}
 }

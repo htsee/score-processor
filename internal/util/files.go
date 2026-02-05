@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"path/filepath"
 )
 
 func CheckFileType(file, filetype string) error {
@@ -21,4 +22,17 @@ func CheckFileType(file, filetype string) error {
 	}
 
 	return nil
+}
+
+func FileList(dir string) ([]string, error) {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	var fileList []string
+	for _, file := range files {
+		path := filepath.Join(dir, file.Name())
+		fileList = append(fileList, path)
+	}
+	return fileList, nil
 }
