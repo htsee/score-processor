@@ -19,20 +19,10 @@ var DeskewCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]
 		destination := args[len(args)-1]
-		if err := DeskewBatch(inputs, destination); err != nil {
-			return err
-		}
-		return nil
+		return util.Batch(inputs, func(input string) error {
+			return DeskewCmdExecute(input, destination)
+		})
 	},
-}
-
-func DeskewBatch(imgs []string, destination string) error {
-	for _, img := range imgs {
-		if err := DeskewCmdExecute(img, destination); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func DeskewCmdExecute(input, destination string) error {

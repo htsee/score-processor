@@ -35,20 +35,10 @@ var TrimCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		if err := TrimBatch(inputs, destination, top, bottom, left, right); err != nil {
-			return err
-		}
-		return nil
+		return util.Batch(inputs, func(input string) error {
+			return TrimCmdExecute(input, destination, top, bottom, left, right)
+		})
 	},
-}
-
-func TrimBatch(imgs []string, destination string, top, bottom, left, right int) error {
-	for _, img := range imgs {
-		if err := TrimCmdExecute(img, destination, top, bottom, left, right); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func TrimCmdExecute(input, destination string, top, bottom, left, right int) error {
