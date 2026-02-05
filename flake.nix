@@ -20,7 +20,7 @@
         version = "0.1.0";
         src = self;
         goSum = ./go.sum;
-        vendorHash = "sha256-+6G2OJPG2aVPqJgrJP6le1+fMtuBs1S59xZ0/wwzuX4=";
+        vendorHash = "sha256-UtCtuypTlNntJu4W2oc6WLxdBR+QOZwz2DUZgBeiXXI=";
         nativeBuildInputs = with pkgs; [
           pkg-config
           makeWrapper
