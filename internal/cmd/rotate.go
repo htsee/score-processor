@@ -12,6 +12,7 @@ import (
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
 	"gocv.io/x/gocv"
+	"golang.org/x/sync/errgroup"
 )
 
 var RotateCmd = &cobra.Command{
@@ -33,12 +34,13 @@ var RotateCmd = &cobra.Command{
 }
 
 func RotateBatch(imgs []string, destination string, angle float64) error {
+	var g errgroup.Group
 	for _, img := range imgs {
-		if err := RotateCmdExecute(img, destination, angle); err != nil {
-			return err
-		}
+		g.Go(func() error {
+			return RotateCmdExecute(img, destination, angle)
+		})
 	}
-	return nil
+	return g.Wait()
 }
 
 func RotateCmdExecute(input, destination string, angle float64) error {
