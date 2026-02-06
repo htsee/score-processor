@@ -42,6 +42,7 @@ func VSplice(inputs []string, destination string) error {
 		end := i + 2
 		end = min(end, len(inputs))
 		pair := inputs[i:end]
+		spliced := gocv.NewMat()
 		if len(pair) >= 2 {
 			img1 := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
 			img2 := gocv.IMRead(pair[1], gocv.IMReadGrayScale)
@@ -52,7 +53,6 @@ func VSplice(inputs []string, destination string) error {
 				return fmt.Errorf("cannot read image %q", pair[1])
 			}
 
-			spliced := gocv.NewMat()
 			h1, h2 := img1.Rows(), img2.Rows()
 			padding := math.Abs(float64(h1-h2)) / 2.0
 
@@ -77,41 +77,26 @@ func VSplice(inputs []string, destination string) error {
 			if err := img2.Close(); err != nil {
 				return err
 			}
-
-			fitted, err := Fit(spliced, 16.0/9.0)
-			if err != nil {
-				return err
-			}
-			if err := spliced.Close(); err != nil {
-				return err
-			}
-
-			img_name, _ := strings.CutSuffix(path.Base(pair[0]), ".png")
-			output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
-			gocv.IMWrite(output_path, fitted)
-			if err := fitted.Close(); err != nil {
-				return err
-			}
 		} else {
-			img := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
-			if img.Empty() {
+			spliced := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
+			if spliced.Empty() {
 				return fmt.Errorf("cannot read image %q", pair[0])
 			}
+		}
 
-			fitted, err := Fit(img, 16.0/9.0)
-			if err != nil {
-				return err
-			}
-			if err := img.Close(); err != nil {
-				return err
-			}
+		fitted, err := Fit(spliced, 16.0/9.0)
+		if err != nil {
+			return err
+		}
+		if err := spliced.Close(); err != nil {
+			return err
+		}
 
-			img_name, _ := strings.CutSuffix(path.Base(pair[0]), ".png")
-			output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
-			gocv.IMWrite(output_path, fitted)
-			if err := fitted.Close(); err != nil {
-				return err
-			}
+		img_name, _ := strings.CutSuffix(path.Base(pair[0]), ".png")
+		output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
+		gocv.IMWrite(output_path, fitted)
+		if err := fitted.Close(); err != nil {
+			return err
 		}
 	}
 	return nil

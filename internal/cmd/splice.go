@@ -38,31 +38,31 @@ func Splice(inputs []string, destination string) error {
 
 	maxWidth := 0
 	currentHeight := 0
-	var image []gocv.Mat
+	var staves []gocv.Mat
 	index := 0
 	for i, input := range inputs {
-		img := gocv.IMRead(input, gocv.IMReadGrayScale)
-		if img.Empty() {
+		staff := gocv.IMRead(input, gocv.IMReadGrayScale)
+		if staff.Empty() {
 			return fmt.Errorf("cannot read image %q", input)
 		}
-		imgWidth, imgHeight := img.Cols(), img.Rows()
+		imgWidth, imgHeight := staff.Cols(), staff.Rows()
 		if imgWidth > maxWidth {
 			maxWidth = imgWidth
 		}
 		currentHeight += imgHeight
-		if len(image) != 0 && (float64(currentHeight) > float64(maxWidth)/(16.0/9.0) || i == len(inputs)-1) {
-			if err := combine(image, maxWidth, index, destination); err != nil {
+		if len(staves) != 0 && (float64(currentHeight) > float64(maxWidth)/(16.0/9.0) || i == len(inputs)-1) {
+			if err := combine(staves, maxWidth, index, destination); err != nil {
 				return err
 			}
 			index++
 			maxWidth = imgWidth
 			currentHeight = imgHeight
-			image = image[:0]
+			staves = staves[:0]
 		}
 
-		image = append(image, img)
+		staves = append(staves, staff)
 		if i == len(inputs)-1 {
-			if err := combine(image, maxWidth, index, destination); err != nil {
+			if err := combine(staves, maxWidth, index, destination); err != nil {
 				return err
 			}
 		}
@@ -70,9 +70,9 @@ func Splice(inputs []string, destination string) error {
 	return nil
 }
 
-func combine(image []gocv.Mat, width, index int, destination string) error {
-	current := image[0]
-	for i, staff := range image {
+func combine(staves []gocv.Mat, width, index int, destination string) error {
+	current := staves[0]
+	for i, staff := range staves {
 		staffWidth := staff.Cols()
 		if staffWidth < width {
 			padding := float64(width-staffWidth) / 2
