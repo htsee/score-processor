@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"image/color"
-	"math"
 	"os"
 
 	"github.com/htsee/score-processor/internal/util"
@@ -51,7 +49,7 @@ func Splice(inputs []string, destination string) error {
 		}
 		currentHeight += imgHeight
 		if len(staves) != 0 && (float64(currentHeight) > float64(maxWidth)/(16.0/9.0) || i == len(inputs)-1) {
-			if err := combine(staves, maxWidth, index, destination); err != nil {
+			if err := util.Combine(staves, maxWidth, index, "horizontal", destination); err != nil {
 				return err
 			}
 			index++
@@ -62,45 +60,10 @@ func Splice(inputs []string, destination string) error {
 
 		staves = append(staves, staff)
 		if i == len(inputs)-1 {
-			if err := combine(staves, maxWidth, index, destination); err != nil {
+			if err := util.Combine(staves, maxWidth, index, "horizontal", destination); err != nil {
 				return err
 			}
 		}
-	}
-	return nil
-}
-
-func combine(staves []gocv.Mat, width, index int, destination string) error {
-	current := staves[0]
-	for i, staff := range staves {
-		staffWidth := staff.Cols()
-		if staffWidth < width {
-			padding := float64(width-staffWidth) / 2
-			err := gocv.CopyMakeBorder(staff, &staff, 0, 0, int(math.Ceil(padding)), int(math.Floor(padding)), gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
-			if err != nil {
-				return err
-			}
-		}
-		if i > 0 {
-			if err := gocv.Vconcat(current, staff, &current); err != nil {
-				return err
-			}
-			if err := staff.Close(); err != nil {
-				return err
-			}
-		}
-	}
-	fitted, err := util.Fit(current, 16.0/9.0)
-	if err != nil {
-		return err
-	}
-	if err := current.Close(); err != nil {
-		return err
-	}
-	output_path := fmt.Sprintf("%s/%03d.png", destination, index)
-	gocv.IMWrite(output_path, fitted)
-	if err := fitted.Close(); err != nil {
-		return err
 	}
 	return nil
 }
