@@ -84,7 +84,7 @@ func VSplice(inputs []string, destination string) error {
 			}
 		}
 
-		fitted, err := Fit(spliced, 16.0/9.0)
+		fitted, err := util.Fit(spliced, 16.0/9.0)
 		if err != nil {
 			return err
 		}

@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"image"
-	"image/color"
 	"os"
 	"path"
 	"strings"
@@ -29,12 +27,12 @@ var PadCmd = &cobra.Command{
 			return err
 		}
 		return util.Batch(inputs, func(input string) error {
-			return PadCmdExecute(input, destination, vpad, hpad)
+			return Pad(input, destination, vpad, hpad)
 		})
 	},
 }
 
-func PadCmdExecute(input, destination string, vpad, hpad int) error {
+func Pad(input, destination string, vpad, hpad int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -49,7 +47,7 @@ func PadCmdExecute(input, destination string, vpad, hpad int) error {
 		return fmt.Errorf("cannot read image %q", input)
 	}
 
-	padded, err := Pad(img, vpad, hpad)
+	padded, err := util.Pad(img, vpad, hpad)
 	if err != nil {
 		return fmt.Errorf("failed to pad image: %w", err)
 	}
@@ -66,48 +64,4 @@ func PadCmdExecute(input, destination string, vpad, hpad int) error {
 	}
 
 	return nil
-}
-
-func Pad(img gocv.Mat, vpad, hpad int) (gocv.Mat, error) {
-	padded := gocv.NewMat()
-
-	boundingBox, err := getBoundingBox(img)
-	if err != nil {
-		return img, err
-	}
-
-	cropped := img.Region(boundingBox)
-
-	err = gocv.CopyMakeBorder(cropped, &padded, vpad, vpad, hpad, hpad, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
-	if err != nil {
-		return img, err
-	}
-	if err := cropped.Close(); err != nil {
-		return img, err
-	}
-
-	return padded, nil
-}
-
-func getBoundingBox(img gocv.Mat) (image.Rectangle, error) {
-	thresh := gocv.NewMat()
-	gocv.Threshold(img, &thresh, 225, 255, gocv.ThresholdBinaryInv)
-
-	nonZero := gocv.NewMat()
-	if err := gocv.FindNonZero(thresh, &nonZero); err != nil {
-		return image.Rectangle{}, err
-	}
-	if err := thresh.Close(); err != nil {
-		return image.Rectangle{}, err
-	}
-
-	pointVector := gocv.NewPointVectorFromMat(nonZero)
-	if err := nonZero.Close(); err != nil {
-		return image.Rectangle{}, err
-	}
-
-	boundingRect := gocv.BoundingRect(pointVector)
-	pointVector.Close()
-
-	return boundingRect, nil
 }

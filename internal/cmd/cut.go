@@ -162,7 +162,7 @@ func Cut(input string, destination string) error {
 	}
 
 	for i, staff := range staves {
-		boundingBox, err := getBoundingBox(staff.mask)
+		boundingBox, err := util.GetBoundingBox(staff.mask)
 		if err != nil {
 			return err
 		}
@@ -199,7 +199,7 @@ func Cut(input string, destination string) error {
 			return err
 		}
 
-		padded, err := Pad(masked, 10, 10)
+		padded, err := util.Pad(masked, 10, 10)
 		if err != nil {
 			return err
 		}

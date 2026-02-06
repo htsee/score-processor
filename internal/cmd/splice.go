@@ -90,7 +90,7 @@ func combine(staves []gocv.Mat, width, index int, destination string) error {
 			}
 		}
 	}
-	fitted, err := Fit(current, 16.0/9.0)
+	fitted, err := util.Fit(current, 16.0/9.0)
 	if err != nil {
 		return err
 	}

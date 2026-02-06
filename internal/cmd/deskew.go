@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"path"
 	"strings"
@@ -20,12 +19,12 @@ var DeskewCmd = &cobra.Command{
 		inputs := args[0 : len(args)-1]
 		destination := args[len(args)-1]
 		return util.Batch(inputs, func(input string) error {
-			return DeskewCmdExecute(input, destination)
+			return Deskew(input, destination)
 		})
 	},
 }
 
-func DeskewCmdExecute(input, destination string) error {
+func Deskew(input, destination string) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -40,7 +39,7 @@ func DeskewCmdExecute(input, destination string) error {
 		return fmt.Errorf("cannot read image %q", input)
 	}
 
-	deskewed, err := Deskew(img)
+	deskewed, err := util.Deskew(img)
 	if err != nil {
 		return fmt.Errorf("failed to deskew image: %w", err)
 	}
@@ -58,39 +57,4 @@ func DeskewCmdExecute(input, destination string) error {
 	}
 
 	return nil
-}
-
-func Deskew(img gocv.Mat) (gocv.Mat, error) {
-	edges := gocv.NewMat()
-	if err := gocv.Canny(img, &edges, 50, 200); err != nil {
-		return img, err
-	}
-
-	lines := gocv.NewMat()
-
-	if err := gocv.HoughLinesPWithParams(edges, &lines, 1, math.Pi/360, 100, float32(img.Cols())/4.0, 5); err != nil {
-		return img, err
-	}
-	if err := edges.Close(); err != nil {
-		return img, err
-	}
-
-	var angles []float64
-	for i := 0; i < lines.Rows(); i++ {
-		line := lines.GetVeciAt(i, 0)
-		angle := math.Atan2(float64(line[3]-line[1]), float64(line[2]-line[0])) * (180.0 / math.Pi)
-		angles = append(angles, angle)
-	}
-	if err := lines.Close(); err != nil {
-		return img, err
-	}
-
-	medianAngle := angles[len(angles)/2]
-
-	rotated, err := Rotate(img, medianAngle)
-	if err != nil {
-		return img, err
-	}
-
-	return rotated, nil
 }

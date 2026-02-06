@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"image"
 	"os"
 	"path"
 	"strings"
@@ -36,12 +35,12 @@ var TrimCmd = &cobra.Command{
 			return err
 		}
 		return util.Batch(inputs, func(input string) error {
-			return TrimCmdExecute(input, destination, top, bottom, left, right)
+			return Trim(input, destination, top, bottom, left, right)
 		})
 	},
 }
 
-func TrimCmdExecute(input, destination string, top, bottom, left, right int) error {
+func Trim(input, destination string, top, bottom, left, right int) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -56,7 +55,7 @@ func TrimCmdExecute(input, destination string, top, bottom, left, right int) err
 		return fmt.Errorf("cannot read image %q", input)
 	}
 
-	trimmed := Trim(img, top, bottom, left, right)
+	trimmed := util.Trim(img, top, bottom, left, right)
 	if err := img.Close(); err != nil {
 		return err
 	}
@@ -70,10 +69,4 @@ func TrimCmdExecute(input, destination string, top, bottom, left, right int) err
 	}
 
 	return nil
-}
-
-func Trim(img gocv.Mat, top, bottom, left, right int) gocv.Mat {
-	trimmedRect := image.Rect(left, top, img.Cols()-right, img.Rows()-bottom)
-
-	return img.Region(trimmedRect)
 }

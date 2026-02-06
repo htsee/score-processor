@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"image/color"
 	"os"
 	"path"
 	"strings"
@@ -29,12 +28,12 @@ var FitCmd = &cobra.Command{
 		}
 		ratio := float64(width) / float64(height)
 		return util.Batch(inputs, func(input string) error {
-			return FitCmdExecute(input, destination, ratio)
+			return Fit(input, destination, ratio)
 		})
 	},
 }
 
-func FitCmdExecute(input, destination string, ratio float64) error {
+func Fit(input, destination string, ratio float64) error {
 	if err := util.CheckFileType(input, "png"); err != nil {
 		return err
 	}
@@ -49,7 +48,7 @@ func FitCmdExecute(input, destination string, ratio float64) error {
 		return fmt.Errorf("cannot read image %q", input)
 	}
 
-	fitted, err := Fit(img, ratio)
+	fitted, err := util.Fit(img, ratio)
 	if err != nil {
 		return fmt.Errorf("failed to fit image: %w", err)
 	}
@@ -66,24 +65,4 @@ func FitCmdExecute(input, destination string, ratio float64) error {
 	}
 
 	return nil
-}
-
-func Fit(img gocv.Mat, ratio float64) (gocv.Mat, error) {
-	w := float64(img.Cols())
-	h := float64(img.Rows())
-	fitted := gocv.NewMat()
-	if w/h < ratio {
-		padding := int((h*ratio - w) / 2)
-		err := gocv.CopyMakeBorder(img, &fitted, 0, 0, padding, padding, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
-		if err != nil {
-			return img, err
-		}
-	} else {
-		padding := int((w/ratio - h) / 2)
-		err := gocv.CopyMakeBorder(img, &fitted, padding, padding, 0, 0, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
-		if err != nil {
-			return img, err
-		}
-	}
-	return fitted, nil
 }
