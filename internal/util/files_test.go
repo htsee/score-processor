@@ -41,6 +41,7 @@ func TestFileList(t *testing.T) {
 	}{
 		{"Correct input", "../../testdata/pdf/", false},
 		{"Input does not exist", "notExist", true},
+		{"Input is not a folder", "../../testdata/pdf/test1.pdf", true},
 	}
 
 	for _, tt := range tests {
