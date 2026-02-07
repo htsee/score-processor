@@ -26,6 +26,9 @@ var PadCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		if err := util.CheckNonNegative(vpad, hpad); err != nil {
+			return err
+		}
 		return util.Batch(inputs, func(input string) error {
 			return Pad(input, destination, vpad, hpad)
 		})

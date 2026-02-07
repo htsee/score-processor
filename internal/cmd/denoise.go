@@ -23,6 +23,9 @@ var DenoiseCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		if err := util.CheckNonNegative(size); err != nil {
+			return err
+		}
 		return util.Batch(inputs, func(input string) error {
 			return Denoise(input, destination, size)
 		})

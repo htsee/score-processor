@@ -34,6 +34,9 @@ var TrimCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		if err := util.CheckNonNegative(top, bottom, left, right); err != nil {
+			return err
+		}
 		return util.Batch(inputs, func(input string) error {
 			return Trim(input, destination, top, bottom, left, right)
 		})

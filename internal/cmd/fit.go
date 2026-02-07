@@ -26,6 +26,9 @@ var FitCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		if err := util.CheckNonNegative(width, height); err != nil {
+			return err
+		}
 		ratio := float64(width) / float64(height)
 		return util.Batch(inputs, func(input string) error {
 			return Fit(input, destination, ratio)
