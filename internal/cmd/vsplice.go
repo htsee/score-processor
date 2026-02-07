@@ -2,11 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"image/color"
-	"math"
 	"os"
-	"path"
-	"strings"
 
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
@@ -38,65 +34,27 @@ func VSplice(inputs []string, destination string) error {
 		return fmt.Errorf("cannot create folder %q: %w", destination, err)
 	}
 
-	for i := 0; i < len(inputs); i += 2 {
-		end := i + 2
-		end = min(end, len(inputs))
-		pair := inputs[i:end]
-		spliced := gocv.NewMat()
-		if len(pair) >= 2 {
-			img1 := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
-			img2 := gocv.IMRead(pair[1], gocv.IMReadGrayScale)
-			if img1.Empty() {
-				return fmt.Errorf("cannot read image %q", pair[0])
-			}
-			if img2.Empty() {
-				return fmt.Errorf("cannot read image %q", pair[1])
-			}
-
-			h1, h2 := img1.Rows(), img2.Rows()
-			padding := math.Abs(float64(h1-h2)) / 2.0
-
-			if h1 > h2 {
-				err := gocv.CopyMakeBorder(img2, &img2, int(math.Ceil(padding)), int(math.Floor(padding)), 0, 0, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
-				if err != nil {
-					return err
-				}
-			} else {
-				err := gocv.CopyMakeBorder(img1, &img1, int(math.Ceil(padding)), int(math.Floor(padding)), 0, 0, gocv.BorderConstant, color.RGBA{255, 255, 255, 255})
-				if err != nil {
-					return err
-				}
-			}
-
-			if err := gocv.Hconcat(img1, img2, &spliced); err != nil {
-				return err
-			}
-			if err := img1.Close(); err != nil {
-				return err
-			}
-			if err := img2.Close(); err != nil {
-				return err
-			}
-		} else {
-			spliced := gocv.IMRead(pair[0], gocv.IMReadGrayScale)
-			if spliced.Empty() {
-				return fmt.Errorf("cannot read image %q", pair[0])
-			}
+	maxHeight := 0
+	var pages []gocv.Mat
+	index := 1
+	for i, input := range inputs {
+		page := gocv.IMRead(input, gocv.IMReadGrayScale)
+		if page.Empty() {
+			return fmt.Errorf("cannot read image %q", input)
+		}
+		imgHeight := page.Rows()
+		if imgHeight > maxHeight {
+			maxHeight = imgHeight
 		}
 
-		fitted, err := util.Fit(spliced, 16.0/9.0)
-		if err != nil {
-			return err
-		}
-		if err := spliced.Close(); err != nil {
-			return err
-		}
-
-		img_name, _ := strings.CutSuffix(path.Base(pair[0]), ".png")
-		output_path := fmt.Sprintf("%s/%s.png", destination, img_name)
-		gocv.IMWrite(output_path, fitted)
-		if err := fitted.Close(); err != nil {
-			return err
+		pages = append(pages, page)
+		if len(pages) >= 2 || i == len(inputs)-1 {
+			if err := util.Combine(pages, maxHeight, index, "vertical", destination); err != nil {
+				return err
+			}
+			index++
+			maxHeight = 0
+			pages = pages[:0]
 		}
 	}
 	return nil
