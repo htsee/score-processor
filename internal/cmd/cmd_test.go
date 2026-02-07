@@ -167,7 +167,7 @@ func BenchmarkTrimSingle(b *testing.B) {
 }
 
 func BenchmarkVsplice(b *testing.B) {
-	if err := cmd.Splice(pageList, b.TempDir()); err != nil {
+	if err := cmd.VSplice(pageList, b.TempDir()); err != nil {
 		b.Error(err)
 	}
 }
