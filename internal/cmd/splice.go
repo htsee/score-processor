@@ -37,7 +37,7 @@ func Splice(inputs []string, destination string) error {
 	maxWidth := 0
 	currentHeight := 0
 	var staves []gocv.Mat
-	index := 0
+	index := 1
 	for i, input := range inputs {
 		staff := gocv.IMRead(input, gocv.IMReadGrayScale)
 		if staff.Empty() {
