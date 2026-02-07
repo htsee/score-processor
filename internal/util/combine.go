@@ -13,6 +13,10 @@ func Combine(imgs []gocv.Mat, length, index int, orientation, destination string
 	if orientation != "horizontal" && orientation != "vertical" {
 		return errors.New("invalid orientation")
 	}
+	if len(imgs) == 0 {
+		return errors.New("empty input")
+	}
+
 	current := imgs[0]
 	if orientation == "horizontal" {
 		for i, img := range imgs {
