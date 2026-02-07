@@ -48,7 +48,7 @@ func Splice(inputs []string, destination string) error {
 			maxWidth = imgWidth
 		}
 		currentHeight += imgHeight
-		if len(staves) != 0 && (float64(currentHeight) > float64(maxWidth)/(16.0/9.0) || i == len(inputs)-1) {
+		if len(staves) != 0 && (float64(currentHeight) > float64(maxWidth)/(16.0/9.0)) {
 			if err := util.Combine(staves, maxWidth, index, "horizontal", destination); err != nil {
 				return err
 			}
