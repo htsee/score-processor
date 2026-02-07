@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"math"
-	"os"
 	"path"
 	"strings"
 
@@ -20,6 +19,9 @@ var CutCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]
 		destination := args[len(args)-1]
+		if err := util.CheckValidIO(inputs, "png", destination); err != nil {
+			return err
+		}
 		return util.Batch(inputs, func(input string) error {
 			return Cut(input, destination)
 		})
@@ -33,14 +35,6 @@ type staff struct {
 }
 
 func Cut(input string, destination string) error {
-	if err := util.CheckFileType(input, "png"); err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("cannot create folder %q: %w", destination, err)
-	}
-
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
 
 	if img.Empty() {

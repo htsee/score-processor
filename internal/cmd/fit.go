@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path"
 	"strings"
 
@@ -30,6 +29,9 @@ var FitCmd = &cobra.Command{
 			return err
 		}
 		ratio := float64(width) / float64(height)
+		if err := util.CheckValidIO(inputs, "png", destination); err != nil {
+			return err
+		}
 		return util.Batch(inputs, func(input string) error {
 			return Fit(input, destination, ratio)
 		})
@@ -37,14 +39,6 @@ var FitCmd = &cobra.Command{
 }
 
 func Fit(input, destination string, ratio float64) error {
-	if err := util.CheckFileType(input, "png"); err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("cannot create folder %q: %w", destination, err)
-	}
-
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
 
 	if img.Empty() {

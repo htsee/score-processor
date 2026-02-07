@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"path"
 	"strings"
@@ -23,6 +22,9 @@ var ConvertCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		if err := util.CheckValidIO(inputs, "pdf", destination); err != nil {
+			return err
+		}
 		return util.Batch(inputs, func(input string) error {
 			return Convert(input, destination, pages)
 		})
@@ -30,14 +32,6 @@ var ConvertCmd = &cobra.Command{
 }
 
 func Convert(pdf, destination, pages string) error {
-	if err := util.CheckFileType(pdf, "pdf"); err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("cannot create folder %q: %w", destination, err)
-	}
-
 	pdf_name, _ := strings.CutSuffix(path.Base(pdf), ".pdf")
 	output_path := fmt.Sprintf("%s/%s_%%03d.png", destination, pdf_name)
 

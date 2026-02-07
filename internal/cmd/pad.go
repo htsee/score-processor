@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path"
 	"strings"
 
@@ -29,6 +28,9 @@ var PadCmd = &cobra.Command{
 		if err := util.CheckNonNegative(vpad, hpad); err != nil {
 			return err
 		}
+		if err := util.CheckValidIO(inputs, "png", destination); err != nil {
+			return err
+		}
 		return util.Batch(inputs, func(input string) error {
 			return Pad(input, destination, vpad, hpad)
 		})
@@ -36,14 +38,6 @@ var PadCmd = &cobra.Command{
 }
 
 func Pad(input, destination string, vpad, hpad int) error {
-	if err := util.CheckFileType(input, "png"); err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("cannot create folder %q: %w", destination, err)
-	}
-
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
 
 	if img.Empty() {

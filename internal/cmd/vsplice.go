@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
@@ -16,6 +15,9 @@ var VSpliceCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]
 		destination := args[len(args)-1]
+		if err := util.CheckValidIO(inputs, "png", destination); err != nil {
+			return err
+		}
 		if err := VSplice(inputs, destination); err != nil {
 			return err
 		}
@@ -24,16 +26,6 @@ var VSpliceCmd = &cobra.Command{
 }
 
 func VSplice(inputs []string, destination string) error {
-	for _, input := range inputs {
-		if err := util.CheckFileType(input, "png"); err != nil {
-			return err
-		}
-	}
-
-	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("cannot create folder %q: %w", destination, err)
-	}
-
 	maxHeight := 0
 	var pages []gocv.Mat
 	index := 1

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path"
 	"strings"
 
@@ -22,6 +21,9 @@ var RotateCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		if err := util.CheckValidIO(inputs, "png", destination); err != nil {
+			return err
+		}
 		return util.Batch(inputs, func(input string) error {
 			return Rotate(input, destination, angle)
 		})
@@ -29,14 +31,6 @@ var RotateCmd = &cobra.Command{
 }
 
 func Rotate(input, destination string, angle float64) error {
-	if err := util.CheckFileType(input, "png"); err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("cannot create folder %q: %w", destination, err)
-	}
-
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
 
 	if img.Empty() {

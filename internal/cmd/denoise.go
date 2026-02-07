@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path"
 	"strings"
 
@@ -26,6 +25,9 @@ var DenoiseCmd = &cobra.Command{
 		if err := util.CheckNonNegative(size); err != nil {
 			return err
 		}
+		if err := util.CheckValidIO(inputs, "png", destination); err != nil {
+			return err
+		}
 		return util.Batch(inputs, func(input string) error {
 			return Denoise(input, destination, size)
 		})
@@ -33,14 +35,6 @@ var DenoiseCmd = &cobra.Command{
 }
 
 func Denoise(input, destination string, size int) error {
-	if err := util.CheckFileType(input, "png"); err != nil {
-		return err
-	}
-
-	if err := os.MkdirAll(destination, 0755); err != nil {
-		return fmt.Errorf("cannot create folder %q: %w", destination, err)
-	}
-
 	img := gocv.IMRead(input, gocv.IMReadGrayScale)
 
 	if img.Empty() {
