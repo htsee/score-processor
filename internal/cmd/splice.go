@@ -6,6 +6,7 @@ import (
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
 	"gocv.io/x/gocv"
+	"golang.org/x/sync/errgroup"
 )
 
 var SpliceCmd = &cobra.Command{
@@ -55,12 +56,14 @@ func Splice(inputs []string, destination string) error {
 		}
 	}
 	start := 0
+	var g errgroup.Group
 	for i := range groups {
-		if err := util.Combine(staves[start:groups[i].end+1], groups[i].width, i, "horizontal", destination); err != nil {
-			return err
-		}
+		groupedStaves := staves[start : groups[i].end+1]
+		g.Go(func() error {
+			return util.Combine(groupedStaves, groups[i].width, i, "horizontal", destination)
+		})
 		start = groups[i].end + 1
 	}
 
-	return nil
+	return g.Wait()
 }
