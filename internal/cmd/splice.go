@@ -29,33 +29,38 @@ func Splice(inputs []string, destination string) error {
 	maxWidth := 0
 	currentHeight := 0
 	var staves []gocv.Mat
-	index := 1
+	type staffGroup struct {
+		end   int
+		width int
+	}
+	var groups []staffGroup
 	for i, input := range inputs {
 		staff := gocv.IMRead(input, gocv.IMReadGrayScale)
 		if staff.Empty() {
 			return fmt.Errorf("cannot read image %q", input)
 		}
+		staves = append(staves, staff)
 		imgWidth, imgHeight := staff.Cols(), staff.Rows()
 		if imgWidth > maxWidth {
 			maxWidth = imgWidth
 		}
 		currentHeight += imgHeight
-		if len(staves) != 0 && (float64(currentHeight) > float64(maxWidth)/(16.0/9.0)) {
-			if err := util.Combine(staves, maxWidth, index, "horizontal", destination); err != nil {
-				return err
-			}
-			index++
+		if i > 0 && float64(currentHeight) > float64(maxWidth)/(16.0/9.0) {
+			groups = append(groups, staffGroup{end: i - 1, width: maxWidth})
 			maxWidth = imgWidth
 			currentHeight = imgHeight
-			staves = staves[:0]
 		}
-
-		staves = append(staves, staff)
 		if i == len(inputs)-1 {
-			if err := util.Combine(staves, maxWidth, index, "horizontal", destination); err != nil {
-				return err
-			}
+			groups = append(groups, staffGroup{end: i, width: maxWidth})
 		}
 	}
+	start := 0
+	for i := range groups {
+		if err := util.Combine(staves[start:groups[i].end+1], groups[i].width, i, "horizontal", destination); err != nil {
+			return err
+		}
+		start = groups[i].end + 1
+	}
+
 	return nil
 }
