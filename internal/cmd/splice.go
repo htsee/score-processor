@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/htsee/score-processor/internal/util"
 	"github.com/spf13/cobra"
@@ -16,17 +17,24 @@ var SpliceCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		inputs := args[0 : len(args)-1]
 		destination := args[len(args)-1]
+		maxStaves, err := cmd.Flags().GetInt("max")
+		if err != nil {
+			return err
+		}
 		if err := util.CheckValidIO(inputs, "png", destination); err != nil {
 			return err
 		}
-		if err := Splice(inputs, destination); err != nil {
+		if err := Splice(inputs, destination, maxStaves); err != nil {
 			return err
 		}
 		return nil
 	},
 }
 
-func Splice(inputs []string, destination string) error {
+func Splice(inputs []string, destination string, maxStaves int) error {
+	if maxStaves <= 0 {
+		maxStaves = math.MaxInt
+	}
 	maxWidth := 0
 	currentHeight := 0
 	var staves []gocv.Mat
@@ -35,6 +43,7 @@ func Splice(inputs []string, destination string) error {
 		width int
 	}
 	var groups []staffGroup
+	prev := 0
 	for i, input := range inputs {
 		staff := gocv.IMRead(input, gocv.IMReadGrayScale)
 		if staff.Empty() {
@@ -46,8 +55,9 @@ func Splice(inputs []string, destination string) error {
 			maxWidth = imgWidth
 		}
 		currentHeight += imgHeight
-		if i > 0 && float64(currentHeight) > float64(maxWidth)/(16.0/9.0) {
+		if i > 0 && float64(currentHeight) > float64(maxWidth)/(16.0/9.0) || i-prev >= maxStaves {
 			groups = append(groups, staffGroup{end: i - 1, width: maxWidth})
+			prev = i
 			maxWidth = imgWidth
 			currentHeight = imgHeight
 		}

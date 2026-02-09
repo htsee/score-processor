@@ -145,7 +145,7 @@ func BenchmarkRotateSingle(b *testing.B) {
 }
 
 func BenchmarkSplice(b *testing.B) {
-	if err := cmd.Splice(cutList, b.TempDir()); err != nil {
+	if err := cmd.Splice(cutList, b.TempDir(), 0); err != nil {
 		b.Error(err)
 	}
 }

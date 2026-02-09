@@ -45,6 +45,7 @@ func init() {
 	TrimCmd.SilenceErrors = true
 	RootCmd.AddCommand(TrimCmd)
 
+	SpliceCmd.Flags().IntP("max", "m", 0, "max number of staves per image")
 	SpliceCmd.SilenceErrors = true
 	RootCmd.AddCommand(SpliceCmd)
 
