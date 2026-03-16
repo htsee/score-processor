@@ -30,7 +30,8 @@
           mupdf-headless
         ];
         postInstall = ''
-          					wrapProgram $out/bin/score-processor \
+                    mv $out/bin/score-processor $out/bin/sp
+          					wrapProgram $out/bin/sp \
           					--prefix PATH : ${pkgs.mupdf-headless}/bin
           				'';
       };
