@@ -1,0 +1,19 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: gocv/opencv
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - name: Lint
+        run: $(go env GOPATH)/bin/golangci-lint run
+      - name: Test
+        run: go test -v ./...
+      - name: Build
+        run: go build -v ./...
